@@ -1,10 +1,12 @@
 {
   "dependencies": {
+    "com.meta.xr.sdk.all": "201.0.0",
     "com.unity.multiplayer.center": "1.0.0",
     "com.unity.shadergraph": "17.0.4",
     "com.unity.xr.arfoundation": "6.0.7",
     "com.unity.xr.hands": "1.7.3",
     "com.unity.xr.interaction.toolkit": "3.0.11",
+    "com.unity.xr.openxr": "1.16.1",
     "com.unity.modules.accessibility": "1.0.0",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
