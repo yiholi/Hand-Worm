@@ -1,180 +1,209 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class CreepyCrawler : MonoBehaviour
 {
     [Header("【移動設定】")]
-    public float moveSpeed = 5f;       // 向前爬行的速度 (現在永遠不會減速！)
-    public float turnSpeed = 100f;     // 轉彎的速度
+    public float moveSpeed = 0.8f;
+    public float turnSpeed = 55f;
 
-    [Header("【AI 自動隨機漫遊】")]
-    public bool enableAIWander = true; // 開啟後蟲子會自己亂走
-    public float changeDirectionInterval = 2f; // 每隔幾秒換一次隨機方向
-    private float aiTurnValue = 0f;    // 目前 AI 決定的轉彎數值 (-1 到 1)
-    private float aiTimer = 0f;        // AI 換向的計時器
+    [Header("【AI 隨機漫遊】")]
+    public bool enableAIWander = true;
+    public float changeDirectionInterval = 2f;
+    private float aiTurnValue = 0f;
+    private float aiTimer = 0f;
 
-    [Header("【表面貼合設定】")]
-    public LayerMask groundLayer;      // 設定哪些圖層是地形或牆壁
-    public float heightFromMesh = 0.5f;// 頭部距離建築模型的基準距離
-    public float alignSpeed = 10f;     // 貼合表面法線的旋轉速度
-    public float frontFeelerLength = 1.5f; // 往前摸索的射線長度 (偵測牆壁)
-    public float downFeelerLength = 3.0f;  // 往下摸索的射線長度 (偵測地板)
+    [Header("【表面貼合】")]
+    public LayerMask groundLayer;
+    public float heightFromMesh = 0.25f;
+    public float snapSpeed = 12f;
+    public float normalAlignSpeed = 7f;
+    public float castRadius = 0.12f;
 
-    [Header("【全速過彎防掉落設定】")]
-    public float edgeLookAhead = 0.8f; // 探照燈距離：提早多遠發現邊緣
-    public float edgeTurnBoost = 1.5f; // 遇到邊緣時的轉彎爆發力
+    [Header("【防掉落】")]
+    public float edgeLookAhead = 0.5f;
+    public float edgeTurnDuration = 0.7f;
+    private float edgeTurnTimer = 0f;
+    private float edgeTurnDir = 1f;
 
-    [Header("【MR網格平滑設定】")]
-    public float probeRadius = 0.15f;  // 十字射線的擴散半徑
+    [Header("【射線長度】")]
+    public float downCastLength = 2.5f;
+    public float forwardCastLength = 1.2f;
+
+    [Header("【爬牆過渡】")]
+    // 距離牆壁多近時開始「感應」到牆，準備過渡
+    public float wallDetectDistance = 0.8f;
+    // 過渡速度：越大越快翻上牆，太大會突然翻轉
+    public float wallTransitionSpeed = 5f;
+
+    private Vector3 currentNormal = Vector3.up;
+    private bool onSurface = false;
+    private Vector3 detectedSurfacePoint;
+
+    void Start()
+    {
+        currentNormal = Vector3.up;
+    }
 
     void Update()
     {
-        // 1. 處理基礎旋轉 (玩家控制與 AI 隨機漫遊)
-        HandleRotation();
-
-        // 2. 處理移動、全速過彎與表面貼合
-        PerformMovementAndAlignment();
+        DetectSurface();
+        HandleTurning();
+        MoveAlongSurface();
+        SnapToSurface();
     }
 
-    // --- 負責決定蟲子要往哪個方向轉 ---
-    private void HandleRotation()
+    private void DetectSurface()
     {
-        float finalTurnInput = 0f;
+        Vector3 origin = transform.position + currentNormal * heightFromMesh * 2f;
+
+        Vector3 surfNormal, surfPoint;
+
+        // ── 優先級 1：目前法線方向的正下方（維持當前爬行面）──
+        if (CastAverage(origin, -currentNormal, downCastLength, out surfNormal, out surfPoint))
+        {
+            // 正常貼合，平滑更新法線
+            currentNormal = Vector3.Slerp(currentNormal, surfNormal, normalAlignSpeed * Time.deltaTime).normalized;
+            detectedSurfacePoint = surfPoint;
+            onSurface = true;
+        }
+        else
+        {
+            onSurface = false;
+        }
+
+        // ── 優先級 2：前方牆壁感應（不管有沒有踩到地都要跑）──
+        // 從頭部前方打一條射線，看看多遠有牆
+        Vector3 forwardOrigin = transform.position + currentNormal * heightFromMesh;
+        if (CastAverage(forwardOrigin, transform.forward, wallDetectDistance, out surfNormal, out surfPoint))
+        {
+            // 牆的法線跟目前法線差很多（表示真的是不同面），才進行過渡
+            float angleDiff = Vector3.Angle(currentNormal, surfNormal);
+            if (angleDiff > 30f)
+            {
+                // 距離越近，過渡越快（快碰到牆了就趕快翻）
+                float distToWall = Vector3.Distance(transform.position, surfPoint);
+                float blendFactor = 1f - Mathf.Clamp01(distToWall / wallDetectDistance);
+                float transitionRate = wallTransitionSpeed * blendFactor;
+
+                currentNormal = Vector3.Slerp(currentNormal, surfNormal, transitionRate * Time.deltaTime).normalized;
+                detectedSurfacePoint = surfPoint;
+                onSurface = true;
+            }
+        }
+
+        // ── 優先級 3：往斜前下方打（補上地板→牆的角落盲區）──
+        // 方向 = forward 和 -currentNormal 的中間，用來偵測「牆角轉角」
+        Vector3 cornerDir = (transform.forward - currentNormal).normalized;
+        if (!onSurface && CastAverage(origin, cornerDir, downCastLength, out surfNormal, out surfPoint))
+        {
+            currentNormal = Vector3.Slerp(currentNormal, surfNormal, normalAlignSpeed * Time.deltaTime).normalized;
+            detectedSurfacePoint = surfPoint;
+            onSurface = true;
+        }
+    }
+
+    private void HandleTurning()
+    {
+        float turnInput = 0f;
         float playerInput = Input.GetAxis("Horizontal");
 
-        // 玩家手動控制優先
         if (Mathf.Abs(playerInput) > 0.1f)
         {
-            finalTurnInput = playerInput;
+            turnInput = playerInput;
+            edgeTurnTimer = 0f;
         }
-        // AI 隨機漫遊
+        else if (edgeTurnTimer > 0f)
+        {
+            edgeTurnTimer -= Time.deltaTime;
+            turnInput = edgeTurnDir;
+        }
         else if (enableAIWander)
         {
             aiTimer -= Time.deltaTime;
-            if (aiTimer <= 0)
+            if (aiTimer <= 0f)
             {
-                // 時間到，隨機決定新的旋轉方向
                 aiTurnValue = Random.Range(-1f, 1f);
                 aiTimer = Random.Range(0.5f, changeDirectionInterval);
             }
-            finalTurnInput = aiTurnValue;
+            turnInput = aiTurnValue;
         }
 
-        // 執行基礎旋轉
-        transform.Rotate(0, finalTurnInput * turnSpeed * Time.deltaTime, 0);
+        // 繞表面法線旋轉（在任何面上轉向都正確）
+        transform.rotation = Quaternion.AngleAxis(turnInput * turnSpeed * Time.deltaTime, currentNormal) * transform.rotation;
     }
 
-    // --- 負責永遠保持全速移動，並在邊緣強制轉向 ---
-    private void PerformMovementAndAlignment()
+    private void MoveAlongSurface()
     {
-        Vector3 probeRayOrigin = transform.position + (transform.up * heightFromMesh * 1.5f);
-        Vector3 targetNormal = transform.up;
-        Vector3 targetSurfacePoint = transform.position;
-        bool surfaceFound = false;
+        if (!onSurface) return;
 
-        // 1. 前方觸鬚 (牆壁偵測)
-        if (GetAverageSurfaceData(probeRayOrigin, transform.forward, frontFeelerLength, out targetNormal, out targetSurfacePoint))
-        {
-            surfaceFound = true;
-        }
-        // 2. 下方觸鬚 (地板偵測)
-        else if (GetAverageSurfaceData(probeRayOrigin, -transform.up, downFeelerLength, out targetNormal, out targetSurfacePoint))
-        {
-            surfaceFound = true;
-        }
+        // 前進方向投影到表面切線平面，永遠貼著走
+        Vector3 moveDir = Vector3.ProjectOnPlane(transform.forward, currentNormal).normalized;
 
-        // 狀況 A：觸鬚成功摸到 Plane 地面 (正常的移動與過彎)
-        if (surfaceFound)
+        // 邊緣探照燈
+        Vector3 lookAheadOrigin = transform.position + moveDir * edgeLookAhead + currentNormal * heightFromMesh * 2f;
+        bool edgeAhead = !Physics.Raycast(lookAheadOrigin, -currentNormal, downCastLength + 0.5f, groundLayer);
+
+        if (edgeAhead && edgeTurnTimer <= 0f)
         {
-            // --- 探照燈預判系統 ---
-            // 往正前方預測一段距離，看看那裡有沒有地板
-            Vector3 lookAheadPos = transform.position + (transform.forward * edgeLookAhead);
-            Vector3 lookAheadRayOrigin = lookAheadPos + (targetNormal * heightFromMesh * 1.5f);
+            // 邊緣前先檢查有沒有牆可以爬，有牆就不觸發轉向
+            Vector3 forwardOrigin = transform.position + currentNormal * heightFromMesh;
+            bool wallAhead = Physics.Raycast(forwardOrigin, transform.forward, wallDetectDistance, groundLayer);
             
-            bool isEdgeAhead = !Physics.Raycast(lookAheadRayOrigin, -targetNormal, out RaycastHit hit, downFeelerLength + 1f, groundLayer);
-
-            // 如果前方是懸崖！
-            if (isEdgeAhead)
+            if (!wallAhead)
             {
-                // 強制接管 AI，讓牠死命往同一個方向轉彎！
-                aiTurnValue = 1f;
-                aiTimer = 0.5f;  
-
-                // 加入轉向爆發力，讓全速前進的蟲子來得及轉過彎
-                transform.Rotate(0, turnSpeed * edgeTurnBoost * Time.deltaTime, 0);
+                edgeTurnDir   = (Random.value > 0.5f) ? 1f : -1f;
+                edgeTurnTimer = edgeTurnDuration;
             }
+        }
 
-            // --- 物理更新區塊 ---
-            
-            // 平滑調整高度
-            Vector3 finalTargetPosition = targetSurfacePoint + (targetNormal * heightFromMesh);
-            transform.position = Vector3.Lerp(transform.position, finalTargetPosition, alignSpeed * Time.deltaTime);
-            
-            // 平滑對齊表面法線
-            Quaternion targetRotation = Quaternion.FromToRotation(transform.up, targetNormal) * transform.rotation;
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, alignSpeed * Time.deltaTime);
-            
-            // 正常狀況下保持全速前進
-            transform.Translate(Vector3.forward * moveSpeed * Time.deltaTime);
-        }
-        // 狀況 B：【新增防卡死安全線】當頭部不小心衝過頭、短暫踩空時
-        else
-        {
-            // 不進行長距離倒車，而是每格畫面稍微往後退一點點 (Vector3.back)，把頭部縮回 Plane 範圍內
-            transform.Translate(Vector3.back * (moveSpeed * 0.5f) * Time.deltaTime);
-            
-            // 往後退的同時將 AI 計時器清空，這樣只要頭部一退回地面，下一幀立刻重新隨機往前衝！
-            aiTimer = 0f;
-        }
+        transform.position += moveDir * moveSpeed * Time.deltaTime;
     }
 
-    // --- 法線平均化，發射 5 條射線來取得平滑的地形資料 (維持不變) ---
-    private bool GetAverageSurfaceData(Vector3 origin, Vector3 direction, float length, out Vector3 avgNormal, out Vector3 avgPoint)
+    private void SnapToSurface()
+    {
+        if (!onSurface) return;
+
+        Vector3 targetPos = detectedSurfacePoint + currentNormal * heightFromMesh;
+        transform.position = Vector3.Lerp(transform.position, targetPos, snapSpeed * Time.deltaTime);
+
+        Quaternion targetRot = Quaternion.FromToRotation(transform.up, currentNormal) * transform.rotation;
+        transform.rotation   = Quaternion.Slerp(transform.rotation, targetRot, normalAlignSpeed * Time.deltaTime);
+    }
+
+    private bool CastAverage(Vector3 origin, Vector3 dir, float length,
+                              out Vector3 avgNormal, out Vector3 avgPoint)
     {
         avgNormal = Vector3.zero;
-        avgPoint = Vector3.zero;
-        int hitCount = 0;
+        avgPoint  = Vector3.zero;
+        int hits  = 0;
 
-        Vector3 spreadUp, spreadRight;
-        if (direction == transform.forward)
-        {
-            spreadUp = transform.up;
-            spreadRight = transform.right;
-        }
-        else
-        {
-            spreadUp = transform.forward;
-            spreadRight = transform.right;
-        }
+        Vector3 axisA = Vector3.Cross(dir, transform.right).normalized;
+        Vector3 axisB = transform.right;
 
-        Vector3[] offsets = new Vector3[]
-        {
+        Vector3[] offsets = {
             Vector3.zero,
-            spreadUp * probeRadius,
-            -spreadUp * probeRadius,
-            spreadRight * probeRadius,
-            -spreadRight * probeRadius
+            axisA *  castRadius,
+            axisA * -castRadius,
+            axisB *  castRadius,
+            axisB * -castRadius,
         };
 
-        foreach (Vector3 offset in offsets)
+        foreach (var offset in offsets)
         {
-            RaycastHit hit;
-            if (Physics.Raycast(origin + offset, direction, out hit, length, groundLayer))
+            if (Physics.Raycast(origin + offset, dir, out RaycastHit hit, length, groundLayer))
             {
                 avgNormal += hit.normal;
-                avgPoint += hit.point;  
-                hitCount++;              
+                avgPoint  += hit.point;
+                hits++;
             }
         }
 
-        if (hitCount > 0)
+        if (hits > 0)
         {
-            avgNormal = (avgNormal / hitCount).normalized;
-            avgPoint = avgPoint / hitCount;
+            avgNormal = (avgNormal / hits).normalized;
+            avgPoint  =  avgPoint  / hits;
             return true;
         }
-
         return false;
     }
 }
