@@ -18,6 +18,9 @@ public class CreepyCrawler : MonoBehaviour
     public float snapSpeed = 12f;
     public float normalAlignSpeed = 7f;
     public float castRadius = 0.12f;
+    // 單幀 snap 最多能移動多遠（公尺）。防止目標點突然跳遠時「穿牆傳送」。
+    // 太小：貼合變慢、上下坡跟不上；太大：又會穿牆。0.05 ≈ 在 72fps 下約 3.6 m/s 上限。
+    public float maxSnapStep = 0.05f;
 
     [Header("【防掉落】")]
     public float edgeLookAhead = 0.5f;
@@ -34,6 +37,11 @@ public class CreepyCrawler : MonoBehaviour
     public float wallDetectDistance = 0.8f;
     // 過渡速度：越大越快翻上牆，太大會突然翻轉
     public float wallTransitionSpeed = 5f;
+
+    [Header("【除錯顯示】")]
+    // 打開後：Scene 視窗會畫出所有射線（綠=打到/紅=打空）、
+    // 偵測到的表面點、法線與前進方向；Game 視窗左上角顯示狀態文字。
+    public bool showDebug = true;
 
     private Vector3 currentNormal = Vector3.up;
     private bool onSurface = false;
@@ -86,7 +94,10 @@ public class CreepyCrawler : MonoBehaviour
                 float transitionRate = wallTransitionSpeed * blendFactor;
 
                 currentNormal = Vector3.Slerp(currentNormal, surfNormal, transitionRate * Time.deltaTime).normalized;
-                detectedSurfacePoint = surfPoint;
+                // 注意：這裡【刻意不更新 detectedSurfacePoint】。
+                // snap 的目標永遠只由「腳下的下射線」決定（優先級 1 / 3），
+                // 爬牆改靠 currentNormal 慢慢轉向牆面、讓下射線自然轉去打到牆，
+                // 這樣就不會把 snap 目標瞬間拉到 0.8m 外造成穿牆爆衝。
                 onSurface = true;
             }
         }
@@ -164,7 +175,10 @@ public class CreepyCrawler : MonoBehaviour
         if (!onSurface) return;
 
         Vector3 targetPos = detectedSurfacePoint + currentNormal * heightFromMesh;
-        transform.position = Vector3.Lerp(transform.position, targetPos, snapSpeed * Time.deltaTime);
+        // 先算出 Lerp 想去的位置，再用 MoveTowards 限制這一幀「最多只能移動 maxSnapStep」。
+        // 雙保險：平常 Lerp 平順貼合；目標突然跳遠時被 maxSnapStep 卡住，永遠不會穿牆傳送。
+        Vector3 lerped = Vector3.Lerp(transform.position, targetPos, snapSpeed * Time.deltaTime);
+        transform.position = Vector3.MoveTowards(transform.position, lerped, maxSnapStep);
 
         Quaternion targetRot = Quaternion.FromToRotation(transform.up, currentNormal) * transform.rotation;
         transform.rotation   = Quaternion.Slerp(transform.rotation, targetRot, normalAlignSpeed * Time.deltaTime);
@@ -195,6 +209,13 @@ public class CreepyCrawler : MonoBehaviour
                 avgNormal += hit.normal;
                 avgPoint  += hit.point;
                 hits++;
+                // 綠線：這條射線打到了，畫到命中點
+                if (showDebug) Debug.DrawLine(origin + offset, hit.point, Color.green);
+            }
+            else if (showDebug)
+            {
+                // 紅線：這條射線打空了（畫滿整條長度）
+                Debug.DrawRay(origin + offset, dir * length, Color.red);
             }
         }
 
@@ -205,5 +226,33 @@ public class CreepyCrawler : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    // ── 在 Scene 視窗畫出關鍵向量（只在 Play 中且 showDebug 開啟時）──
+    private void OnDrawGizmos()
+    {
+        if (!showDebug || !Application.isPlaying) return;
+
+        // 黃球＝目前 snap 要追的表面點（onSurface 為 false 時變灰）
+        Gizmos.color = onSurface ? Color.yellow : Color.gray;
+        Gizmos.DrawSphere(detectedSurfacePoint, 0.03f);
+
+        // 青線＝目前的表面法線（身體會沿這個方向抬高 / 貼平）
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawLine(transform.position, transform.position + currentNormal * 0.3f);
+
+        // 洋紅線＝實際前進方向（投影到表面後）
+        Gizmos.color = Color.magenta;
+        Vector3 moveDir = Vector3.ProjectOnPlane(transform.forward, currentNormal).normalized;
+        Gizmos.DrawLine(transform.position, transform.position + moveDir * 0.3f);
+    }
+
+    // ── 在 Game 視窗左上角顯示即時狀態，方便看「停住」時 onSurface 是不是 false ──
+    private void OnGUI()
+    {
+        if (!showDebug) return;
+        GUI.color = onSurface ? Color.green : Color.red;
+        GUI.Label(new Rect(12, 12, 400, 24),
+            $"onSurface = {onSurface}    edgeTurnTimer = {edgeTurnTimer:F2}");
     }
 }
