@@ -474,6 +474,10 @@ PrefabInstance:
       value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 3613868102660323786, guid: c2e00db6d2dfa42ac8d821db8d493a44, type: 3}
+      propertyPath: SceneSettings.EnableHighFidelityScene
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3613868102660323786, guid: c2e00db6d2dfa42ac8d821db8d493a44, type: 3}
       propertyPath: 'SceneSettings.RoomPrefabs.Array.data[0]'
       value: 
       objectReference: {fileID: 322770182520489500, guid: f4eca9455b4ef03489b618f440771f31, type: 3}
