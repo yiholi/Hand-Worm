@@ -2,6 +2,7 @@
   "dependencies": {
     "com.meta.xr.sdk.all": "201.0.0",
     "com.unity.multiplayer.center": "1.0.0",
+    "com.unity.render-pipelines.universal": "17.0.4",
     "com.unity.shadergraph": "17.0.4",
     "com.unity.xr.arfoundation": "6.0.7",
     "com.unity.xr.hands": "1.7.3",
