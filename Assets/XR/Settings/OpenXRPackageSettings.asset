@@ -890,6 +890,8 @@ MonoBehaviour:
   m_Name: Android
   m_EditorClassIdentifier: 
   features:
+  - {fileID: 6694308720589997164}
+  - {fileID: -4668447666386784508}
   - {fileID: 1697238671499355758}
   - {fileID: -132669680111494166}
   - {fileID: 7447573434435486247}
@@ -904,6 +906,17 @@ MonoBehaviour:
   - {fileID: -2800899593012572141}
   - {fileID: 3160428355148732979}
   - {fileID: -707574369939328163}
+  - {fileID: -6623828986677238788}
+  - {fileID: 5251965163638866916}
+  - {fileID: -6311827657409957063}
+  - {fileID: 1627562732198614631}
+  - {fileID: 7933616037960590811}
+  - {fileID: 543867052034817856}
+  - {fileID: 7720696696257205287}
+  - {fileID: -7667344241249615491}
+  - {fileID: 6749007911636562479}
+  - {fileID: 3843482999075071059}
+  - {fileID: 3342171795835727805}
   - {fileID: -2920771460260587786}
   - {fileID: -3386892867273757275}
   - {fileID: 3937052532882034329}
@@ -1350,6 +1363,8 @@ MonoBehaviour:
   targetOpenXRApiVersion: 
   required: 0
   customRuntimeLoaderName: 
+  m_CameraImageSupport: 0
+  m_PassthroughPreSplashScreen: 0
 --- !u!114 &209838274475755499
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1484,6 +1499,8 @@ MonoBehaviour:
   targetOpenXRApiVersion: 
   required: 0
   customRuntimeLoaderName: 
+  m_CameraImageSupport: 0
+  m_PassthroughPreSplashScreen: 0
 --- !u!114 &1690974795193997703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1563,6 +1580,8 @@ MonoBehaviour:
   m_Name: Standalone
   m_EditorClassIdentifier: 
   features:
+  - {fileID: 8506705145220412452}
+  - {fileID: -2530103391015134824}
   - {fileID: -4485780630590020005}
   - {fileID: -1140109159122240866}
   - {fileID: 7875641148870418579}
@@ -1578,6 +1597,17 @@ MonoBehaviour:
   - {fileID: 6081394427205405371}
   - {fileID: -2565001854587977616}
   - {fileID: -8994761958518824186}
+  - {fileID: -8963986417845364847}
+  - {fileID: 6610115192380458281}
+  - {fileID: 4213538014534155446}
+  - {fileID: 33092582634209121}
+  - {fileID: -6089547845464664899}
+  - {fileID: -8274049823719070503}
+  - {fileID: -25137534403681439}
+  - {fileID: -2875825989199097476}
+  - {fileID: 4497985269040547862}
+  - {fileID: 1962451927931416542}
+  - {fileID: -910761248901276018}
   - {fileID: -471845720363272693}
   - {fileID: -5638409717501896909}
   - {fileID: 2832596689127202298}
@@ -1907,12 +1937,13 @@ MonoBehaviour:
   version: 0.1.0
   featureIdInternal: com.unity.openxr.feature.arfoundation-meta-plane
   openxrExtensionStrings: XR_FB_scene XR_FB_spatial_entity XR_FB_spatial_entity_container
-    XR_META_spatial_entity_discovery
+    XR_META_spatial_entity_discovery XR_META_spatial_entity_semantic_label XR_META_spatial_entity_room_mesh
   company: Unity Technologies
   priority: 0
   targetOpenXRApiVersion: 
   required: 0
   customRuntimeLoaderName: 
+  m_PlaneProviderType: 1
 --- !u!114 &4746087976659597858
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2290,12 +2321,13 @@ MonoBehaviour:
   version: 0.1.0
   featureIdInternal: com.unity.openxr.feature.arfoundation-meta-plane
   openxrExtensionStrings: XR_FB_scene XR_FB_spatial_entity XR_FB_spatial_entity_container
-    XR_META_spatial_entity_discovery
+    XR_META_spatial_entity_discovery XR_META_spatial_entity_semantic_label XR_META_spatial_entity_room_mesh
   company: Unity Technologies
   priority: 0
   targetOpenXRApiVersion: 
   required: 0
   customRuntimeLoaderName: 
+  m_PlaneProviderType: 1
 --- !u!114 &7208448122200842517
 MonoBehaviour:
   m_ObjectHideFlags: 0
