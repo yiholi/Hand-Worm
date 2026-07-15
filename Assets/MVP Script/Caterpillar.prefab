@@ -45,10 +45,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   nodePrefab: {fileID: 9213546136537592004, guid: 02a8d84e963286e41a7d6ca903355e60, type: 3}
-  nodeSize: 0.2
+  nodeSize: 0.15
+  nodeCatchUpSpeed: 12
   nodeCount: 20
   swarmLength: 2
-  floatSpeed: 1.5
+  floatSpeed: 0.1
   floatRange: 0.4
   groundOffset: 0.1
   lineMaterial: {fileID: 2100000, guid: 4d7ddb95abc9d524380c1685215dd9fe, type: 2}

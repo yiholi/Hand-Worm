@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 這是選項 A (神經元網路) 的乾淨修復版
+// 完美版：生在正中間、開局慢慢長大浮現（沒有瞬移殘影）、移動後才長出軌跡
 public class ChimeraCrawler : MonoBehaviour
 {
     // ==========================================
@@ -18,41 +18,44 @@ public class ChimeraCrawler : MonoBehaviour
 
     // ==========================================
     // 神經元節點資料結構
-    // 記錄每一個單獨漂浮的小球的狀態
+    // 記錄每一個單獨漂浮的小球的狀態與大小
     // ==========================================
     private class NeuralNode
     {
         public Transform transform;  // 節點的本體
         public float followDistance; // 這個節點應該跟在頭部後方多遠的位置
         public float noiseOffset;    // 亂數種子，用來讓每個節點有自己獨立的漂浮節奏
+        public float currentScale;   // 【新增】用來記錄這顆球目前長到多大了
     }
 
     [Header("【神經元節點設定】")]
     public GameObject nodePrefab;       // 神經元的形狀 (圓球)
-    public float nodeSize = 0.05f;      // 【新增】控制每一顆圓球的大小，可以在 Inspector 隨時調整
+    public float nodeSize = 0.2f;       // 控制每一顆圓球的最終大小
+    public float growSpeed = 3.0f;      // 【新增】開局時像氣泡一樣慢慢長大的速度
+    public float nodeCatchUpSpeed = 12.0f; // 控制節點動態生長與歸位的速度
     public int nodeCount = 20;          // 節點數量
-    public float swarmLength = 3.0f;    // 整個神經網路在軌跡上拖曳的總長度
+    public float swarmLength = 2.0f;    // 整個神經網路在軌跡上拖曳的總長度
     public float floatSpeed = 1.5f;     // 節點隨機漂浮、蠕動的速度
     public float floatRange = 0.4f;     // 節點偏離中心軌跡的漂浮範圍
-    public float groundOffset = 0.1f;   // 節點距離牆壁的高度
+    public float groundOffset = 0.1f;   // 節點距離牆壁的基礎高度
 
     [Header("【動態連線設定 (優化系統)】")]
     public Material lineMaterial;       // 連線的材質球
-    public float connectDistance = 0.8f;// 觸發連線的距離：節點間距小於這個數值就會牽線
+    public float connectDistance = 0.8f;// 觸發連線的距離
     public float lineWidth = 0.02f;     // 神經連線的粗細
 
     [Header("【移動設定 (沿用蟲蟲邏輯)】")]
-    public float moveSpeed = 0.8f;      // 前進速度
-    public float turnSpeed = 55f;       // 轉彎速度
-    public LayerMask groundLayer;       // 偵測地面的圖層 (Ground)
-    public float heightFromMesh = 0.25f;// 身體距離表面的高度基準
+    public float moveSpeed = 1.0f;
+    public float turnSpeed = 55f;
+    public LayerMask groundLayer;
+    public float heightFromMesh = 0.25f;
 
     // ==========================================
-    // 系統內部變數 (不需要在介面上調整)
+    // 系統內部變數
     // ==========================================
     private List<PathPoint> pathHistory = new List<PathPoint>();
     private List<NeuralNode> nodes = new List<NeuralNode>();
-    private List<LineRenderer> linePool = new List<LineRenderer>(); // 【效能優化】連線物件池
+    private List<LineRenderer> linePool = new List<LineRenderer>(); 
     private float minDistanceBetweenPoints = 0.05f;
 
     private Vector3 currentNormal = Vector3.up;
@@ -64,29 +67,36 @@ public class ChimeraCrawler : MonoBehaviour
     // ==========================================
     void Start()
     {
-        currentNormal = transform.up;
-        pathHistory.Add(new PathPoint(transform.position, transform.up, transform.forward));
+        // 1. 【暴力對齊中心】只在你放的 X 和 Z 座標往下打射線，找地板貼上去
+        if (Physics.Raycast(transform.position + Vector3.up * 2f, Vector3.down, out RaycastHit hit, 10f, groundLayer))
+        {
+            transform.position = hit.point + hit.normal * heightFromMesh;
+        }
 
-        // 1. 生成所有的神經元節點
+        currentNormal = transform.up;
+
+        // 2. 記錄第一筆起點資料
+        pathHistory.Add(new PathPoint(transform.position, currentNormal, transform.forward));
+
+        // 3. 生成所有的神經元節點
         for (int i = 0; i < nodeCount; i++)
         {
             GameObject obj = Instantiate(nodePrefab, transform.position, Quaternion.identity);
             
-            // 使用我們新增的 nodeSize 變數來控制球體大小
-            obj.transform.localScale = Vector3.one * nodeSize; 
-            
-            // 將節點從頭部解綁，讓它們能在世界空間中自由漂浮
+            // 【關鍵修改】一出生的大小強制設為 0 (隱形狀態)，稍後讓它慢慢長大
+            obj.transform.localScale = Vector3.zero; 
             obj.transform.parent = null; 
 
             NeuralNode n = new NeuralNode();
             n.transform = obj.transform;
-            n.followDistance = Random.Range(0f, swarmLength); // 隨機分配跟隨距離
-            n.noiseOffset = Random.Range(0f, 100f);           // 給予隨機的漂浮節奏
+            n.followDistance = Random.Range(0f, swarmLength); 
+            n.noiseOffset = Random.Range(0f, 100f);
+            n.currentScale = 0f; // 初始大小為 0
             
             nodes.Add(n);
         }
 
-        // 2. 建立連線的物件池 (預先生成線條備用)
+        // 4. 建立連線的物件池
         int maxLines = (nodeCount * nodeCount) / 3; 
         for (int i = 0; i < maxLines; i++)
         {
@@ -99,7 +109,7 @@ public class ChimeraCrawler : MonoBehaviour
             lr.endWidth = lineWidth;
             lr.positionCount = 2; 
             lr.useWorldSpace = true;
-            lr.enabled = false; // 一開始先隱藏
+            lr.enabled = false; 
             
             linePool.Add(lr);
         }
@@ -115,13 +125,11 @@ public class ChimeraCrawler : MonoBehaviour
         MoveAlongSurface();
         SnapToSurface();
 
-        // 如果頭部移動距離足夠，就記錄一個新的歷史軌跡點
         if (Vector3.Distance(transform.position, pathHistory[0].position) > minDistanceBetweenPoints)
         {
             pathHistory.Insert(0, new PathPoint(transform.position, currentNormal, transform.forward));
         }
 
-        // 刪除過舊的軌跡，避免記憶體爆炸
         int maxHistory = Mathf.CeilToInt(swarmLength / minDistanceBetweenPoints) + 10;
         if (pathHistory.Count > maxHistory)
         {
@@ -130,31 +138,48 @@ public class ChimeraCrawler : MonoBehaviour
     }
 
     // ==========================================
-    // 在所有物件移動完後，更新節點位置與連線
+    // 釋放動態！更新所有節點 3D 位置與連線
     // ==========================================
     void LateUpdate()
     {
-        if (pathHistory.Count < 2) return;
-
-        // 1. 計算每個節點應該漂浮到的位置
+        // 1. 計算每個節點應該漂浮到的 3D 立體位置
         foreach (NeuralNode n in nodes)
         {
+            // 如果剛開局軌跡還沒長出來，會自動回傳中心起點
             PathPoint p = GetPointAtDistance(n.followDistance);
 
-            // 使用 PerlinNoise 產生有機的隨機晃動感
+            // 產生三個維度 (X, Y, Z) 的隨機晃動感
             float noiseX = Mathf.PerlinNoise(Time.time * floatSpeed, n.noiseOffset) - 0.5f;
             float noiseY = Mathf.PerlinNoise(n.noiseOffset, Time.time * floatSpeed) - 0.5f;
+            float noiseZ = Mathf.PerlinNoise(Time.time * floatSpeed, n.noiseOffset + 50f);
 
             Vector3 rightDir = Vector3.Cross(p.normal, p.forward).normalized;
 
-            // 最終位置 = 軌跡中心 + 離地高度 + 左右漂浮 + 前後漂浮
+            // 立體目標位置：當前依附點 + (基礎離地高度 + 立體垂直起伏) + 左右偏移 + 前後偏移
             Vector3 targetPos = p.position 
-                              + (p.normal * groundOffset) 
+                              + (p.normal * (groundOffset + (noiseZ * floatRange))) 
                               + (rightDir * noiseX * floatRange)
                               + (p.forward * noiseY * floatRange);
 
-            // 平滑地朝目標位置移動
-            n.transform.position = Vector3.Lerp(n.transform.position, targetPos, Time.deltaTime * 3f);
+            // 【防止咻一下飛過去的殘影】
+            // 如果它才剛出生 (大小是 0)，就直接把位置設定到目標點，不准它有飛行的過程
+            if (n.currentScale == 0f)
+            {
+                n.transform.position = targetPos;
+            }
+            else
+            {
+                // 如果已經出生了，就平滑活躍地游向這個立體新座標
+                n.transform.position = Vector3.Lerp(n.transform.position, targetPos, Time.deltaTime * nodeCatchUpSpeed);
+            }
+
+            // 【慢慢長大的機制】
+            if (n.currentScale < nodeSize)
+            {
+                // 使用 Lerp 讓球體從 0 慢慢膨脹到指定的 nodeSize 大小
+                n.currentScale = Mathf.Lerp(n.currentScale, nodeSize, Time.deltaTime * growSpeed);
+                n.transform.localScale = Vector3.one * n.currentScale;
+            }
         }
 
         // 2. 處理節點之間的動態連線
@@ -166,7 +191,6 @@ public class ChimeraCrawler : MonoBehaviour
             {
                 float dist = Vector3.Distance(nodes[i].transform.position, nodes[j].transform.position);
 
-                // 如果兩個球夠靠近，就從物件池拿一條線把它們連起來
                 if (dist < connectDistance && activeLineIndex < linePool.Count)
                 {
                     LineRenderer lr = linePool[activeLineIndex];
@@ -178,7 +202,6 @@ public class ChimeraCrawler : MonoBehaviour
             }
         }
 
-        // 將剩下的、沒用到的線條隱藏起來
         for (int i = activeLineIndex; i < linePool.Count; i++)
         {
             linePool[i].enabled = false;
@@ -217,7 +240,6 @@ public class ChimeraCrawler : MonoBehaviour
     {
         Vector3 origin = transform.position + currentNormal * heightFromMesh * 2f;
         
-        // 往下打射線尋找地板，探測距離設為 3.5f 確保不會輕易丟失地面
         if (Physics.Raycast(origin, -currentNormal, out RaycastHit hit, 3.5f, groundLayer))
         {
             currentNormal = Vector3.Slerp(currentNormal, hit.normal, 7f * Time.deltaTime).normalized;
@@ -232,14 +254,12 @@ public class ChimeraCrawler : MonoBehaviour
 
     private void HandleTurning()
     {
-        // 簡單的前方防撞：如果前方有牆壁，就強迫轉彎避免撞牆卡死
         if (Physics.Raycast(transform.position + currentNormal * heightFromMesh, transform.forward, 0.5f, groundLayer))
         {
             transform.Rotate(currentNormal, turnSpeed * Time.deltaTime * 2f);
         }
         else
         {
-            // 如果前方沒牆壁，就保持微幅的 S 型擺動
             float turnInput = Mathf.Sin(Time.time * 0.5f); 
             transform.rotation = Quaternion.AngleAxis(turnInput * turnSpeed * Time.deltaTime, currentNormal) * transform.rotation;
         }
@@ -247,14 +267,12 @@ public class ChimeraCrawler : MonoBehaviour
 
     private void MoveAlongSurface()
     {
-        // 如果懸空了，就輕輕往下掉去尋找地面
         if (!onSurface) 
         {
             transform.position += -currentNormal * 1.5f * Time.deltaTime;
             return;
         }
         
-        // 沿著目前的表面往前走
         Vector3 moveDir = Vector3.ProjectOnPlane(transform.forward, currentNormal).normalized;
         transform.position += moveDir * moveSpeed * Time.deltaTime;
     }
@@ -263,7 +281,6 @@ public class ChimeraCrawler : MonoBehaviour
     {
         if (!onSurface) return;
         
-        // 平滑地將身體貼附到偵測到的牆面高度與角度
         Vector3 targetPos = detectedSurfacePoint + currentNormal * heightFromMesh;
         transform.position = Vector3.MoveTowards(transform.position, targetPos, 0.05f);
         
