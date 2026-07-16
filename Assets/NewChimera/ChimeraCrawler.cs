@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// 完美版：生在正中間、開局慢慢長大浮現（沒有瞬移殘影）、移動後才長出軌跡
+// 完美版：生在正中間、開局慢慢長大浮現、移動後才長出軌跡、支援多種 Prefab 混合
 public class ChimeraCrawler : MonoBehaviour
 {
     // ==========================================
@@ -25,13 +25,14 @@ public class ChimeraCrawler : MonoBehaviour
         public Transform transform;  // 節點的本體
         public float followDistance; // 這個節點應該跟在頭部後方多遠的位置
         public float noiseOffset;    // 亂數種子，用來讓每個節點有自己獨立的漂浮節奏
-        public float currentScale;   // 【新增】用來記錄這顆球目前長到多大了
+        public float currentScale;   // 用來記錄這顆球目前長到多大了
     }
 
     [Header("【神經元節點設定】")]
-    public GameObject nodePrefab;       // 神經元的形狀 (圓球)
+    // 【修改重點】這裡改成 GameObject 陣列，讓你可以拖曳多種不同的 Prefab 進來混搭
+    public GameObject[] nodePrefabs;    
     public float nodeSize = 0.2f;       // 控制每一顆圓球的最終大小
-    public float growSpeed = 3.0f;      // 【新增】開局時像氣泡一樣慢慢長大的速度
+    public float growSpeed = 3.0f;      // 開局時像氣泡一樣慢慢長大的速度
     public float nodeCatchUpSpeed = 12.0f; // 控制節點動態生長與歸位的速度
     public int nodeCount = 20;          // 節點數量
     public float swarmLength = 2.0f;    // 整個神經網路在軌跡上拖曳的總長度
@@ -78,12 +79,23 @@ public class ChimeraCrawler : MonoBehaviour
         // 2. 記錄第一筆起點資料
         pathHistory.Add(new PathPoint(transform.position, currentNormal, transform.forward));
 
+        // 如果你忘記放 Prefab，這裡做個防呆警告避免遊戲當機
+        if (nodePrefabs == null || nodePrefabs.Length == 0)
+        {
+            Debug.LogError("請在 Inspector 的 Node Prefabs 欄位放入至少一個模型！");
+            return;
+        }
+
         // 3. 生成所有的神經元節點
         for (int i = 0; i < nodeCount; i++)
         {
-            GameObject obj = Instantiate(nodePrefab, transform.position, Quaternion.identity);
+            // 【修改重點】從你給的 Prefab 清單中，隨機抽出一個模型來生成
+            GameObject selectedPrefab = nodePrefabs[Random.Range(0, nodePrefabs.Length)];
             
-            // 【關鍵修改】一出生的大小強制設為 0 (隱形狀態)，稍後讓它慢慢長大
+            // 使用選中的模型生成
+            GameObject obj = Instantiate(selectedPrefab, transform.position, Quaternion.identity);
+            
+            // 一出生的大小強制設為 0 (隱形狀態)，稍後讓它慢慢長大
             obj.transform.localScale = Vector3.zero; 
             obj.transform.parent = null; 
 
@@ -161,7 +173,6 @@ public class ChimeraCrawler : MonoBehaviour
                               + (rightDir * noiseX * floatRange)
                               + (p.forward * noiseY * floatRange);
 
-            // 【防止咻一下飛過去的殘影】
             // 如果它才剛出生 (大小是 0)，就直接把位置設定到目標點，不准它有飛行的過程
             if (n.currentScale == 0f)
             {
@@ -173,7 +184,7 @@ public class ChimeraCrawler : MonoBehaviour
                 n.transform.position = Vector3.Lerp(n.transform.position, targetPos, Time.deltaTime * nodeCatchUpSpeed);
             }
 
-            // 【慢慢長大的機制】
+            // 慢慢長大的機制
             if (n.currentScale < nodeSize)
             {
                 // 使用 Lerp 讓球體從 0 慢慢膨脹到指定的 nodeSize 大小

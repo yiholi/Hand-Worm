@@ -44,8 +44,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0e02ec368f0646543bc5012a6c1d46e5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  nodePrefab: {fileID: 9213546136537592004, guid: 02a8d84e963286e41a7d6ca903355e60, type: 3}
+  nodePrefabs:
+  - {fileID: 6596295753432114196, guid: d6be8703d596f784c95a06a2e7ad6fe1, type: 3}
+  - {fileID: 8877061982021843098, guid: 5fab0f58f163e534e92186ab3131de3e, type: 3}
+  - {fileID: 9213546136537592004, guid: 02a8d84e963286e41a7d6ca903355e60, type: 3}
   nodeSize: 0.15
+  growSpeed: 3
   nodeCatchUpSpeed: 12
   nodeCount: 20
   swarmLength: 2
