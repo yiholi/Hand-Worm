@@ -45,12 +45,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f57bf337be4ff64d8cd11d68c843ea9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  segmentPrefab: {fileID: 9213546136537592004, guid: 02a8d84e963286e41a7d6ca903355e60, type: 3}
+  segmentPrefab: {fileID: 8052906390809874051, guid: 0dcb7ac37d5d9e04e92dfc8d299fdd5a, type: 3}
   startSegments: 6
-  segmentSpacing: 0.6
-  bodyScale: 0.5
-  waveAmplitude: 0.08
-  waveFrequency: 3
+  segmentSpacing: 0.1
+  bodyScale: 2
+  rotationSpeed: 8
+  waveAmplitude: 0.02
+  waveFrequency: 1
   phaseOffset: 0.8
   groundLayer:
     serializedVersion: 2
@@ -69,7 +70,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 0.8
-  turnSpeed: 60
+  turnSpeed: 10
   enableAIWander: 1
   changeDirectionInterval: 2
   groundLayer:
@@ -79,9 +80,11 @@ MonoBehaviour:
   snapSpeed: 12
   normalAlignSpeed: 7
   castRadius: 0.12
+  maxSnapStep: 0.05
   edgeLookAhead: 0.8
   edgeTurnDuration: 0.6
   downCastLength: 2.5
   forwardCastLength: 1.2
   wallDetectDistance: 0.8
   wallTransitionSpeed: 5
+  showDebug: 1
