@@ -47,8 +47,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   segmentPrefab: {fileID: 8052906390809874051, guid: 0dcb7ac37d5d9e04e92dfc8d299fdd5a, type: 3}
   startSegments: 6
-  segmentSpacing: 0.1
-  bodyScale: 2
+  segmentSpacing: 0.2
+  bodyScale: 3
   rotationSpeed: 8
   waveAmplitude: 0.02
   waveFrequency: 1

@@ -99,3 +99,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 465a7062dacf01044b1d06080ed597d7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  availableShapes:
+  - {fileID: 289301614986012343, guid: 78e38602d0aaccf4282cdc345d780db6, type: 3}
+  - {fileID: 289301614986012343, guid: 78e38602d0aaccf4282cdc345d780db6, type: 3}
