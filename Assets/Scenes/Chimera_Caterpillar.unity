@@ -160,6 +160,37 @@ MeshCollider:
   m_Convex: 1
   m_CookingOptions: 30
   m_Mesh: {fileID: 0}
+--- !u!1 &294808978
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 294808979}
+  m_Layer: 0
+  m_Name: HeadTarget
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &294808979
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294808978}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 4.640724, y: -9.6030855, z: 2.155366}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &375314030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1277,6 +1308,87 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1124145895}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2081924137
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2081924140}
+  - component: {fileID: 2081924139}
+  - component: {fileID: 2081924138}
+  m_Layer: 0
+  m_Name: Chimera
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &2081924138
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081924137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: "\u7DE3\u5206"
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 72e9b8cea46c7dd439ddaf426cb220dc, type: 2}
+  organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
+  zooidScale: 0.95
+  facet: 0.45
+  iridescence: 0.507
+  tendrilLength: 0.5
+  glass: 1
+  swimPulse: 1
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.6
+    appendageAmount: 0.55
+  rebuildNow: 0
+--- !u!114 &2081924139
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081924137}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6cdebccf41cfc9242bded27d475e2969, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  headTarget: {fileID: 294808979}
+  nodeCount: 18
+  restLength: 0.5
+  slack: 0.55
+  followSpeed: 0.5
+  constraintIterations: 4
+--- !u!4 &2081924140
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2081924137}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2113751777 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5456522116536683071, guid: 37c47f9928e3fef4bb9a9ffaafab5526, type: 3}
@@ -1315,3 +1427,5 @@ SceneRoots:
   - {fileID: 1701684721}
   - {fileID: 1721076727}
   - {fileID: 991459361}
+  - {fileID: 2081924140}
+  - {fileID: 294808979}
