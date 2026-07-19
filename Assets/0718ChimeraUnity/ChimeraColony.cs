@@ -19,6 +19,10 @@ namespace Chimera
         public Material bodyMaterial;
         public Material organMaterial;
 
+        [Header("整體縮放")]
+        [Tooltip("整隻群體的等比縮放。以頭端為錨點，位置與體型同時縮放，垂墜曲線形狀不變。1 = 原尺寸。")]
+        [Range(0.02f, 3f)] public float colonyScale = 1f;
+
         [Header("形態")]
         [Range(0.3f, 2f)] public float zooidScale = 0.95f;
         [Range(0f, 1f)] public float facet = 0.45f;
@@ -43,6 +47,7 @@ namespace Chimera
         MaterialPropertyBlock _mpb;
         Mesh _bodyMesh;
         bool _needRebuildNextFrame;
+        string _rebuildSig;
 
         static readonly int ID_Seg = Shader.PropertyToID("_Seg");
         static readonly int ID_Radial = Shader.PropertyToID("_Radial");
@@ -61,7 +66,16 @@ namespace Chimera
         static readonly int ID_Phase = Shader.PropertyToID("_Phase");
 
         void OnEnable() { rebuildNow = true; }
-        void OnValidate() { rebuildNow = true; }
+
+        /// 只有「會改變幾何」的欄位變動才重建。
+        /// 之前是無條件 rebuildNow = true，拖 colonyScale／facet 這種即時生效的滑桿
+        /// 也會每幀重建整隻群體，編輯期非常卡。
+        void OnValidate()
+        {
+            string sig = $"{label}|{organs.eyes}{organs.mouths}{organs.headBuds}{organs.limbs}" +
+                         $"|{organs.organAmount}|{organs.appendageAmount}";
+            if (sig != _rebuildSig) { _rebuildSig = sig; rebuildNow = true; }
+        }
         void OnDisable() { ClearZooids(); }
 
         ISpineProvider Spine
@@ -123,6 +137,8 @@ namespace Chimera
             if (_mpb == null) _mpb = new MaterialPropertyBlock();
 
             int n = Spine.Count;
+            // 縮放錨點：頭端。整條鏈往頭收，頭永遠停在 HeadTarget 上。
+            Vector3 head = Spine.GetPoint(0);
             for (int i = 0; i < n; i++)
             {
                 var zp = ChimeraHash.Make(label, i);
@@ -159,7 +175,7 @@ namespace Chimera
                 // 建立當下就先擺到脊索上。
                 // 沒有這行的話，新建的 zooid 在被擺位之前會停在父物件原點 (0,0,0)，
                 // 只要有任何一幀沒走到擺位程式碼，看起來就是全部疊成一團。
-                root.position = Spine.GetPoint(i);
+                root.position = head + (Spine.GetPoint(i) - head) * colonyScale;
                 root.rotation = Quaternion.FromToRotation(Vector3.up, Spine.GetForward(i));
 
                 _roots.Add(root); _bodies.Add(br); _organRenderers.Add(or); _params.Add(zp);
@@ -179,13 +195,14 @@ namespace Chimera
 
             int n = Mathf.Min(_roots.Count, Spine.Count);
             float t = Application.isPlaying ? Time.time : 0f;
+            Vector3 head = Spine.GetPoint(0);
 
             for (int i = 0; i < n; i++)
             {
                 var root = _roots[i];
                 if (root == null) { _needRebuildNextFrame = true; continue; }   // 子物件被刪 → 下一幀重建，但這幀其他節照常擺位
 
-                root.position = Spine.GetPoint(i);
+                root.position = head + (Spine.GetPoint(i) - head) * colonyScale;
                 Vector3 fwd = Spine.GetForward(i);
                 root.rotation = Quaternion.Slerp(root.rotation,
                     Quaternion.FromToRotation(Vector3.up, fwd), 1f - Mathf.Exp(-12f * dt));
@@ -196,7 +213,8 @@ namespace Chimera
                 float pulse = swimPulse ? 1f + 0.05f * Mathf.Sin(t * 2.4f + zp.seed) : 1f;
                 float s = (isHead ? 2.0f : 1.0f) * zooidScale
                           * (0.55f + 0.7f * (1f - zoneT))
-                          * (0.85f + 0.3f * (zp.squash - 0.65f)) * 0.40f * pulse;
+                          * (0.85f + 0.3f * (zp.squash - 0.65f)) * 0.40f * pulse
+                          * colonyScale;
                 root.localScale = Vector3.one * s;
 
                 if (_bodies[i] != null)
