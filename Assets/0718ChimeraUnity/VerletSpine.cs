@@ -19,14 +19,18 @@ namespace Chimera
         [Tooltip("相鄰兩節的目標距離（公尺）。決定整條有多長。0.5 = 18 節約 9 公尺。")]
         [Range(0.05f, 2f)] public float restLength = 0.5f;
 
-        [Tooltip("軟硬度。0 = 硬桿，整條筆直跟著頭走；1 = 很軟，會下垂、會甩尾、像玻璃標本那種懸垂曲線。")]
-        [Range(0f, 1f)] public float slack = 0.55f;
-
-        [Tooltip("頭端追上 headTarget 的速度。低 = 頭會落後目標，有被拖著走的重量感；高 = 頭黏在目標上，反應銳利。")]
-        [Range(0f, 1f)] public float followSpeed = 0.5f;
-
-        [Tooltip("每幀解幾次距離約束。低 = 鏈會被拉長（有彈性）；高 = 節距嚴格固定。4 通常夠，卡頓時先降這個。")]
-        [Range(1, 8)] public int constraintIterations = 4;
+        // ── 手感常數 ────────────────────────────────────────────────
+        // 原本是 slack / followSpeed / constraintIterations 三個 Inspector 滑桿。
+        // 拿掉了，改成寫死在這裡。數值是拿掉當下 Inspector 上的值（slack 0.69、
+        // followSpeed 0.59），所以外觀跟拿掉前一致。要改手感就改這三個數字。
+        //
+        // DAMP  速度保留率。越接近 1 越軟、越會甩尾。
+        // DROOP 每秒往下沉多少（公尺／秒）。
+        // FOLLOW 頭端追上 headTarget 的速率。越大頭越黏在目標上。
+        const float DAMP   = 0.959f;
+        const float DROOP  = 0.348f;
+        const float FOLLOW = 6.72f;
+        // ────────────────────────────────────────────────────────────
 
         Vector3[] _pts, _prev;
 
@@ -60,39 +64,34 @@ namespace Chimera
             if (dt <= 0f) return;
 
             Vector3 target = headTarget ? headTarget.position : transform.position;
-            _pts[0] = Vector3.Lerp(_pts[0], target, 1f - Mathf.Exp(-(2f + 8f * followSpeed) * dt));
+            _pts[0] = Vector3.Lerp(_pts[0], target, 1f - Mathf.Exp(-FOLLOW * dt));
 
-            float damp = 0.90f + 0.085f * slack;
-            float droop = (0.10f + 0.36f * slack) * dt;
+            float droop = DROOP * dt;
             for (int i = 1; i < nodeCount; i++)
             {
-                Vector3 v = (_pts[i] - _prev[i]) * damp;
+                Vector3 v = (_pts[i] - _prev[i]) * DAMP;
                 _prev[i] = _pts[i];
                 _pts[i] += v;
                 _pts[i] += Vector3.down * droop;
             }
 
-            float rest = restLength * (0.75f + 0.5f * (1f - slack));
-            for (int it = 0; it < constraintIterations; it++)
+            // 距離約束：單趟由頭往尾傳遞就收斂，不需要迭代。
+            // 只移動下游那一節——之前寫成兩端各修一半，但頭端每幀被 lerp 強制拉向
+            // HeadTarget，修正量會沿著鏈往回傳遞，跑幾幀就整條縮進頭裡面。
+            for (int i = 1; i < nodeCount; i++)
             {
-                for (int i = 1; i < nodeCount; i++)
+                Vector3 d = _pts[i] - _pts[i - 1];
+                float len = d.magnitude;
+
+                // 退化保護：兩點完全重合時 d 是零向量，沒有方向可以推開，
+                // 沒有這段的話整條一旦擠在一起就永遠解不開。
+                if (len < 1e-5f)
                 {
-                    Vector3 d = _pts[i] - _pts[i - 1];
-                    float len = d.magnitude;
-
-                    // 退化保護：兩點完全重合時 d 是零向量，沒有方向可以推開，
-                    // 沒有這段的話整條一旦擠在一起就永遠解不開。
-                    if (len < 1e-5f)
-                    {
-                        d = new Vector3(0.001f, -1f, 0.001f);
-                        len = d.magnitude;
-                    }
-
-                    // ★ 只移動下游那一節。
-                    // 之前寫成兩端各修一半，但頭端每幀被 lerp 強制拉向 HeadTarget，
-                    // 修正量會沿著鏈往回傳遞，跑幾幀就整條縮進頭裡面。
-                    _pts[i] = _pts[i - 1] + d * (rest / len);
+                    d = new Vector3(0.001f, -1f, 0.001f);
+                    len = d.magnitude;
                 }
+
+                _pts[i] = _pts[i - 1] + d * (restLength / len);
             }
         }
 
