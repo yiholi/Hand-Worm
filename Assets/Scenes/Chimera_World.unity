@@ -186,7 +186,7 @@ Transform:
   m_GameObject: {fileID: 294808978}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.640724, y: -9.6030855, z: 2.155366}
+  m_LocalPosition: {x: 0.011093714, y: 1.0073099, z: 1.4998574}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -204,11 +204,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 98166deb149dbb1459fce859af5bd4d9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  boundsCenter: {x: 0, y: 1, z: 0}
+  boundsSize: {x: 2, y: 2, z: 3}
+  drawBounds: 1
   speed: 0.43
-  extents: {x: 2.4, y: 1.1, z: 2}
-  center: {x: 0, y: 1.6, z: 0}
-  logDiagnostics: 1
   useUnscaledTime: 1
+  logDiagnostics: 1
 --- !u!1 &375314030
 GameObject:
   m_ObjectHideFlags: 0
@@ -1403,9 +1404,9 @@ MonoBehaviour:
   headTarget: {fileID: 294808979}
   nodeCount: 10
   restLength: 0.45
-  slack: 0.69
-  followSpeed: 0.59
-  constraintIterations: 5
+  clampToFloor: 1
+  floorY: 0
+  drawFloorGizmo: 1
 --- !u!4 &2081924140
 Transform:
   m_ObjectHideFlags: 0

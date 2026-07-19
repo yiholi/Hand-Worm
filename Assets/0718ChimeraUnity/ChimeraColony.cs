@@ -200,6 +200,11 @@ namespace Chimera
             float dt = Application.isPlaying
                 ? (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime)
                 : 1f / 60f;
+
+            // ★ 上限保護。Play 的第一幀（以及編譯、載入造成的卡頓幀）dt 可能是
+            // 好幾百毫秒，脊索會被一次推進太多而甩開。Time.deltaTime 本身有
+            // Time.maximumDeltaTime 的上限，但 unscaledDeltaTime 沒有，所以自己夾。
+            dt = Mathf.Min(dt, 1f / 30f);
             Spine.Tick(dt);
 
             int n = Mathf.Min(_roots.Count, Spine.Count);
