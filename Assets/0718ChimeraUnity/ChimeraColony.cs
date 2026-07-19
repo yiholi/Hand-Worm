@@ -37,6 +37,11 @@ namespace Chimera
         [Header("重建")]
         public bool rebuildNow;
 
+        [Header("診斷")]
+        [Tooltip("用 unscaledDeltaTime 推進脊索。timeScale 被設成 0 時仍然會動——" +
+                 "調參用的繞道，上機前記得關掉。")]
+        public bool useUnscaledTime = true;
+
         const string ZOOID_PREFIX = "Zooid_";
 
         ISpineProvider _spine;
@@ -190,11 +195,17 @@ namespace Chimera
             if (rebuildNow) Build();
             if (Spine == null || _roots.Count == 0) return;
 
-            float dt = Application.isPlaying ? Time.deltaTime : 1f / 60f;
+            // Time.deltaTime 在 timeScale = 0 時是 0，VerletSpine.Tick 開頭的
+            // if (dt <= 0f) return; 會讓整條脊索一步都不算。
+            float dt = Application.isPlaying
+                ? (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime)
+                : 1f / 60f;
             Spine.Tick(dt);
 
             int n = Mathf.Min(_roots.Count, Spine.Count);
-            float t = Application.isPlaying ? Time.time : 0f;
+            float t = Application.isPlaying
+                ? (useUnscaledTime ? Time.unscaledTime : Time.time)
+                : 0f;
             Vector3 head = Spine.GetPoint(0);
 
             for (int i = 0; i < n; i++)
