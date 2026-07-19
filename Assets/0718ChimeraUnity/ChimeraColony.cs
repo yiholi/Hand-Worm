@@ -42,6 +42,7 @@ namespace Chimera
         readonly List<ZooidParams> _params = new List<ZooidParams>();
         MaterialPropertyBlock _mpb;
         Mesh _bodyMesh;
+        bool _needRebuildNextFrame;
 
         static readonly int ID_Seg = Shader.PropertyToID("_Seg");
         static readonly int ID_Radial = Shader.PropertyToID("_Radial");
@@ -155,13 +156,22 @@ namespace Chimera
 
                 if (isHead) { zp.seg = 0.55f; zp.radial = 0.85f; zp.warp = 0.06f; zp.lobes = 2f; zp.squash = 1.7f; }
 
+                // 建立當下就先擺到脊索上。
+                // 沒有這行的話，新建的 zooid 在被擺位之前會停在父物件原點 (0,0,0)，
+                // 只要有任何一幀沒走到擺位程式碼，看起來就是全部疊成一團。
+                root.position = Spine.GetPoint(i);
+                root.rotation = Quaternion.FromToRotation(Vector3.up, Spine.GetForward(i));
+
                 _roots.Add(root); _bodies.Add(br); _organRenderers.Add(or); _params.Add(zp);
             }
         }
 
         void LateUpdate()
         {
-            if (rebuildNow) { Build(); return; }
+            // ★ 重建之後不要 return —— 同一幀就要繼續擺位。
+            // 之前寫成 { Build(); return; }，一旦 rebuildNow 每幀都被設回 true，
+            // 就會每幀重建、每幀提前返回，永遠走不到下面的擺位，全部停在原點。
+            if (rebuildNow) Build();
             if (Spine == null || _roots.Count == 0) return;
 
             float dt = Application.isPlaying ? Time.deltaTime : 1f / 60f;
@@ -173,7 +183,7 @@ namespace Chimera
             for (int i = 0; i < n; i++)
             {
                 var root = _roots[i];
-                if (root == null) { rebuildNow = true; return; }   // 有人手動刪了子物件 → 重建
+                if (root == null) { _needRebuildNextFrame = true; continue; }   // 子物件被刪 → 下一幀重建，但這幀其他節照常擺位
 
                 root.position = Spine.GetPoint(i);
                 Vector3 fwd = Spine.GetForward(i);
@@ -222,6 +232,8 @@ namespace Chimera
                     or.SetPropertyBlock(_mpb);
                 }
             }
+
+            if (_needRebuildNextFrame) { _needRebuildNextFrame = false; rebuildNow = true; }
         }
     }
 }

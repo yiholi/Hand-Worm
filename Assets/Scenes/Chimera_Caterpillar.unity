@@ -169,6 +169,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 294808979}
+  - component: {fileID: 294808980}
   m_Layer: 0
   m_Name: HeadTarget
   m_TagString: Untagged
@@ -191,6 +192,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &294808980
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 294808978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98166deb149dbb1459fce859af5bd4d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speed: 0.4
+  extents: {x: 2.4, y: 1.1, z: 2}
+  center: {x: 0, y: 1.6, z: 0}
 --- !u!1 &375314030
 GameObject:
   m_ObjectHideFlags: 0
@@ -565,15 +581,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 4.01
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: -14.68
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 0
+      value: 1.13
       objectReference: {fileID: 0}
     - target: {fileID: 400004, guid: 126d619cf4daa52469682f85c1378b4a, type: 3}
       propertyPath: m_LocalRotation.w
@@ -1149,7 +1165,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2296141232796561049, guid: 37c47f9928e3fef4bb9a9ffaafab5526, type: 3}
       propertyPath: hideMesh
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2296141232796561049, guid: 37c47f9928e3fef4bb9a9ffaafab5526, type: 3}
       propertyPath: Colliders
@@ -1342,18 +1358,18 @@ MonoBehaviour:
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 72e9b8cea46c7dd439ddaf426cb220dc, type: 2}
   organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
-  zooidScale: 0.95
-  facet: 0.45
-  iridescence: 0.507
-  tendrilLength: 0.5
-  glass: 1
-  swimPulse: 1
+  zooidScale: 0.49
+  facet: 0.28
+  iridescence: 0.38
+  tendrilLength: 1
+  glass: 0.51
+  swimPulse: 0
   organs:
     eyes: 1
     mouths: 1
     headBuds: 1
     limbs: 1
-    organAmount: 0.6
+    organAmount: 0.8
     appendageAmount: 0.55
   rebuildNow: 0
 --- !u!114 &2081924139
@@ -1369,11 +1385,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   headTarget: {fileID: 294808979}
-  nodeCount: 18
-  restLength: 0.5
-  slack: 0.55
-  followSpeed: 0.5
-  constraintIterations: 4
+  nodeCount: 10
+  restLength: 0.45
+  slack: 0.69
+  followSpeed: 0.59
+  constraintIterations: 5
 --- !u!4 &2081924140
 Transform:
   m_ObjectHideFlags: 0
