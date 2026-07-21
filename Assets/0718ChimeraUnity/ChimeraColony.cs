@@ -1,0 +1,315 @@
+using System.Collections.Generic;
+using UnityEngine;
+
+namespace Chimera
+{
+    /// 群體本體。負責：生成 zooid、依 ISpineProvider 擺位、把參數推進 shader。
+    /// ★ 完全不負責「往哪裡走」——那是 spine provider 的事。
+    ///
+    /// 支援兩種 provider：
+    ///   VerletSpine（ISpineProvider）  → 管水母。角色由位置比例推得（Zone），縮放走 colonyScale。
+    ///   ChimeraBodyPlan（IBodyPlan）   → 獸／鳥／章魚／節肢／海兔。角色與節點大小由骨架直接指定，
+    ///                                    尺寸走該體制自己的 Creature Scale，colonyScale 不生效。
+    [ExecuteAlways]
+    public class ChimeraColony : MonoBehaviour
+    {
+        [Header("來源")]
+        [Tooltip("參與者輸入的字串。同一個字串永遠長出同一隻群體。")]
+        public string label = "緣分";
+
+        [Tooltip("留空會自動抓同物件上的 VerletSpine 或 ChimeraBodyPlan")]
+        public MonoBehaviour spineProviderBehaviour;
+
+        [Header("材質（兩個都必須指定，否則不會生成）")]
+        public Material bodyMaterial;
+        public Material organMaterial;
+
+        [Header("整體縮放")]
+        [Tooltip("整隻群體的等比縮放。以頭端為錨點，位置與體型同時縮放，垂墜曲線形狀不變。1 = 原尺寸。\n" +
+                 "★ 只對 VerletSpine（管水母）有效。用 ChimeraBodyPlan 的體制請改調該元件上的 Creature Scale，" +
+                 "並把這個值留在 1。")]
+        [Range(0.02f, 3f)] public float colonyScale = 1f;
+
+        [Header("形態")]
+        [Range(0.3f, 2f)] public float zooidScale = 0.95f;
+        [Range(0f, 1f)] public float facet = 0.45f;
+        [Range(0f, 1f)] public float iridescence = 0.8f;
+        [Range(0f, 1f)] public float tendrilLength = 0.5f;
+        [Range(0f, 1f)] public float glass = 1f;
+        public bool swimPulse = true;
+
+        [Header("器官／附肢")]
+        public OrganSettings organs = new OrganSettings();
+
+        [Header("重建")]
+        public bool rebuildNow;
+
+        [Header("診斷")]
+        [Tooltip("用 unscaledDeltaTime 推進脊索。timeScale 被設成 0 時仍然會動——" +
+                 "調參用的繞道，上機前記得關掉。")]
+        public bool useUnscaledTime = true;
+
+        const string ZOOID_PREFIX = "Zooid_";
+
+        ISpineProvider _spine;
+        readonly List<Transform> _roots = new List<Transform>();
+        readonly List<Renderer> _bodies = new List<Renderer>();
+        readonly List<Renderer> _organRenderers = new List<Renderer>();
+        readonly List<ZooidParams> _params = new List<ZooidParams>();
+        readonly List<ChimeraRole> _roles = new List<ChimeraRole>();
+        MaterialPropertyBlock _mpb;
+        Mesh _bodyMesh;
+        bool _needRebuildNextFrame;
+        string _rebuildSig;
+
+        static readonly int ID_Seg = Shader.PropertyToID("_Seg");
+        static readonly int ID_Radial = Shader.PropertyToID("_Radial");
+        static readonly int ID_Warp = Shader.PropertyToID("_Warp");
+        static readonly int ID_Taper = Shader.PropertyToID("_Taper");
+        static readonly int ID_Seed = Shader.PropertyToID("_Seed");
+        static readonly int ID_Lobes = Shader.PropertyToID("_Lobes");
+        static readonly int ID_Squash = Shader.PropertyToID("_Squash");
+        static readonly int ID_Pulse = Shader.PropertyToID("_Pulse");
+        static readonly int ID_Facet = Shader.PropertyToID("_Facet");
+        static readonly int ID_Glass = Shader.PropertyToID("_Glass");
+        static readonly int ID_Irid = Shader.PropertyToID("_Irid");
+        static readonly int ID_Hue = Shader.PropertyToID("_Hue");
+        static readonly int ID_Dark = Shader.PropertyToID("_Dark");
+        static readonly int ID_Len = Shader.PropertyToID("_Len");
+        static readonly int ID_Phase = Shader.PropertyToID("_Phase");
+
+        void OnEnable() { rebuildNow = true; }
+
+        /// 只有「會改變幾何」的欄位變動才重建。
+        /// 之前是無條件 rebuildNow = true，拖 colonyScale／facet 這種即時生效的滑桿
+        /// 也會每幀重建整隻群體，編輯期非常卡。
+        void OnValidate()
+        {
+            string sig = $"{label}|{organs.eyes}{organs.mouths}{organs.headBuds}{organs.limbs}" +
+                         $"|{organs.organAmount}|{organs.appendageAmount}";
+            if (sig != _rebuildSig) { _rebuildSig = sig; rebuildNow = true; }
+        }
+        void OnDisable() { ClearZooids(); }
+
+        ISpineProvider Spine
+        {
+            get
+            {
+                if (_spine != null) return _spine;
+                if (spineProviderBehaviour != null) _spine = spineProviderBehaviour as ISpineProvider;
+                if (_spine == null) _spine = GetComponent<ISpineProvider>();
+                return _spine;
+            }
+        }
+
+        /// provider 若是體制生物就拿得到，否則 null（走舊的 Zone 路徑）
+        IBodyPlan Plan => Spine as IBodyPlan;
+
+        static ChimeraRole ZoneToRole(Zone z)
+        {
+            switch (z)
+            {
+                case Zone.Head: return ChimeraRole.Head;
+                case Zone.Nectosome: return ChimeraRole.Trunk;
+                case Zone.Siphosome: return ChimeraRole.Drift;
+                default: return ChimeraRole.Tail;
+            }
+        }
+
+        static void SafeDestroy(Object o)
+        {
+            if (o == null) return;
+            if (Application.isPlaying) Destroy(o); else DestroyImmediate(o);
+        }
+
+        /// 刪掉所有 zooid —— 不依賴快取清單，直接掃實際的子物件。
+        /// 之前建到一半噴例外留下的孤兒也會一併清掉。
+        public void ClearZooids()
+        {
+            var kill = new List<GameObject>();
+            foreach (Transform c in transform)
+                if (c != null && c.name.StartsWith(ZOOID_PREFIX)) kill.Add(c.gameObject);
+
+            foreach (var g in kill)
+            {
+                // 器官 mesh 是程序化生成的，要一起銷毀，否則會洩漏
+                var mfs = g.GetComponentsInChildren<MeshFilter>(true);
+                foreach (var mf in mfs)
+                    if (mf != null && mf.sharedMesh != null && mf.sharedMesh != _bodyMesh)
+                        SafeDestroy(mf.sharedMesh);
+                SafeDestroy(g);
+            }
+            _roots.Clear(); _bodies.Clear(); _organRenderers.Clear(); _params.Clear(); _roles.Clear();
+        }
+
+        public void Build()
+        {
+            rebuildNow = false;
+            _spine = null;
+
+            ClearZooids();
+
+            if (Spine == null)
+            {
+                Debug.LogWarning("[Chimera] 找不到 ISpineProvider（把 VerletSpine 或某個 ChimeraBodyPlan 拖進 Spine Provider Behaviour）", this);
+                return;
+            }
+            if (bodyMaterial == null || organMaterial == null)
+            {
+                Debug.LogWarning("[Chimera] Body Material 或 Organ Material 未指定，未指定的 renderer 會顯示洋紅色。", this);
+                return;
+            }
+
+            if (_bodyMesh == null) _bodyMesh = IcoSphere.Create(3);
+            if (_mpb == null) _mpb = new MaterialPropertyBlock();
+
+            var plan = Plan;
+            int n = Spine.Count;
+            // 體制元件的 OnEnable 可能還沒跑到（元件初始化順序不保證），下一幀再試
+            if (n <= 0) { rebuildNow = true; return; }
+
+            // 縮放錨點：頭端。整條鏈往頭收，頭永遠停在 HeadTarget 上。（僅 VerletSpine 路徑用）
+            Vector3 head = Spine.GetPoint(0);
+
+            for (int i = 0; i < n; i++)
+            {
+                var zp = ChimeraHash.Make(label, i);
+                var role = plan != null ? plan.GetRole(i) : ZoneToRole(ChimeraHash.ZoneOf(i, n));
+                bool isHead = role == ChimeraRole.Head;
+
+                var rootGO = new GameObject($"{ZOOID_PREFIX}{i:00}_{role}");
+                // 程序化生成的物件不進 undo／不存進場景，避免 dangling 警告
+                rootGO.hideFlags = HideFlags.DontSave;
+                var root = rootGO.transform;
+                root.SetParent(transform, false);
+
+                var body = new GameObject("Body") { hideFlags = HideFlags.DontSave };
+                body.transform.SetParent(root, false);
+                body.AddComponent<MeshFilter>().sharedMesh = _bodyMesh;
+                var br = body.AddComponent<MeshRenderer>();
+                br.sharedMaterial = bodyMaterial;
+                br.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+
+                var organMesh = ChimeraMeshBuilder.Build(zp, role, organs);
+                Renderer or = null;
+                if (organMesh != null)
+                {
+                    var og = new GameObject("Organs") { hideFlags = HideFlags.DontSave };
+                    og.transform.SetParent(root, false);
+                    og.AddComponent<MeshFilter>().sharedMesh = organMesh;
+                    or = og.AddComponent<MeshRenderer>();
+                    or.sharedMaterial = organMaterial;
+                    or.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+                }
+
+                if (isHead) { zp.seg = 0.55f; zp.radial = 0.85f; zp.warp = 0.06f; zp.lobes = 2f; zp.squash = 1.7f; }
+
+                // 建立當下就先擺到骨架上。
+                // 沒有這行的話，新建的 zooid 在被擺位之前會停在父物件原點 (0,0,0)，
+                // 只要有任何一幀沒走到擺位程式碼，看起來就是全部疊成一團。
+                root.position = plan != null
+                    ? Spine.GetPoint(i)
+                    : head + (Spine.GetPoint(i) - head) * colonyScale;
+                root.rotation = Quaternion.FromToRotation(Vector3.up, Spine.GetForward(i));
+
+                _roots.Add(root); _bodies.Add(br); _organRenderers.Add(or);
+                _params.Add(zp); _roles.Add(role);
+            }
+        }
+
+        void LateUpdate()
+        {
+            // ★ 重建之後不要 return —— 同一幀就要繼續擺位。
+            if (rebuildNow) Build();
+            if (Spine == null || _roots.Count == 0) return;
+
+            // Time.deltaTime 在 timeScale = 0 時是 0，Tick 開頭的
+            // if (dt <= 0f) return; 會讓骨架一步都不算。
+            float dt = Application.isPlaying
+                ? (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime)
+                : 1f / 60f;
+
+            // ★ 上限保護。Play 的第一幀（以及編譯、載入造成的卡頓幀）dt 可能是
+            // 好幾百毫秒，骨架會被一次推進太多而甩開。
+            dt = Mathf.Min(dt, 1f / 30f);
+            Spine.Tick(dt);
+
+            var plan = Plan;
+            int n = Mathf.Min(_roots.Count, Spine.Count);
+            float t = Application.isPlaying
+                ? (useUnscaledTime ? Time.unscaledTime : Time.time)
+                : 0f;
+            Vector3 head = Spine.GetPoint(0);
+
+            for (int i = 0; i < n; i++)
+            {
+                var root = _roots[i];
+                if (root == null) { _needRebuildNextFrame = true; continue; }
+
+                root.position = plan != null
+                    ? Spine.GetPoint(i)
+                    : head + (Spine.GetPoint(i) - head) * colonyScale;
+
+                Vector3 fwd = Spine.GetForward(i);
+                root.rotation = Quaternion.Slerp(root.rotation,
+                    Quaternion.FromToRotation(Vector3.up, fwd), 1f - Mathf.Exp(-12f * dt));
+
+                var zp = _params[i];
+                bool isHead = _roles[i] == ChimeraRole.Head;
+                float pulse = swimPulse ? 1f + 0.05f * Mathf.Sin(t * 2.4f + zp.seed) : 1f;
+                float squashTerm = 0.85f + 0.3f * (zp.squash - 0.65f);
+
+                float s;
+                if (plan != null)
+                {
+                    // 體制生物：節點大小由骨架給（已含 creatureScale），不再依鏈上的位置遞減
+                    s = zooidScale * plan.GetNodeRadius(i) * squashTerm * pulse;
+                }
+                else
+                {
+                    float zoneT = n > 1 ? (float)i / (n - 1) : 0f;
+                    s = (isHead ? 2.0f : 1.0f) * zooidScale
+                        * (0.55f + 0.7f * (1f - zoneT))
+                        * squashTerm * 0.40f * pulse
+                        * colonyScale;
+                }
+                root.localScale = Vector3.one * s;
+
+                if (_bodies[i] != null)
+                {
+                    _mpb.Clear();
+                    _mpb.SetFloat(ID_Seg, zp.seg);
+                    _mpb.SetFloat(ID_Radial, zp.radial);
+                    _mpb.SetFloat(ID_Warp, zp.warp);
+                    _mpb.SetFloat(ID_Taper, zp.taper);
+                    _mpb.SetFloat(ID_Seed, zp.seed);
+                    _mpb.SetFloat(ID_Lobes, zp.lobes);
+                    _mpb.SetFloat(ID_Squash, zp.squash);
+                    _mpb.SetFloat(ID_Pulse, swimPulse ? 1f : 0f);
+                    _mpb.SetFloat(ID_Facet, facet);
+                    _mpb.SetFloat(ID_Glass, glass);
+                    _mpb.SetFloat(ID_Irid, iridescence);
+                    _mpb.SetFloat(ID_Hue, zp.hue);
+                    _mpb.SetFloat(ID_Dark, 0f);
+                    _bodies[i].SetPropertyBlock(_mpb);
+                }
+
+                var or = _organRenderers[i];
+                if (or != null)
+                {
+                    _mpb.Clear();
+                    _mpb.SetFloat(ID_Phase, zp.seed);
+                    _mpb.SetFloat(ID_Len, 0.4f + tendrilLength * 2.2f);
+                    _mpb.SetFloat(ID_Facet, Mathf.Min(1f, facet * 0.7f));
+                    _mpb.SetFloat(ID_Glass, glass);
+                    _mpb.SetFloat(ID_Irid, iridescence);
+                    _mpb.SetFloat(ID_Hue, zp.hue + 1.2f);
+                    _mpb.SetFloat(ID_Dark, 0.25f);
+                    or.SetPropertyBlock(_mpb);
+                }
+            }
+
+            if (_needRebuildNextFrame) { _needRebuildNextFrame = false; rebuildNow = true; }
+        }
+    }
+}
