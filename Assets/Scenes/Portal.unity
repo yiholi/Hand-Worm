@@ -136,7 +136,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &23990118
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -167,7 +167,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &23990119
 Transform:
@@ -228,7 +228,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetLayerName: Ground
-  caterpillarPrefab: {fileID: 499114063808567885, guid: a247a5d250af91c408948763bfd3b5f7, type: 3}
+  caterpillarPrefab: {fileID: 0}
 --- !u!64 &28854295
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -267,7 +267,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &294808979
 Transform:
   m_ObjectHideFlags: 0
@@ -277,7 +277,7 @@ Transform:
   m_GameObject: {fileID: 294808978}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.80640197, y: 1.9571012, z: -0.839671}
+  m_LocalPosition: {x: 0.040663846, y: 1.0268002, z: 1.4980841}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -350,7 +350,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &379503738
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -381,7 +381,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &379503739
 Transform:
@@ -700,7 +700,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &700957726
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -731,7 +731,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &700957727
 Transform:
@@ -1078,7 +1078,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 984354080134106425, guid: c2e00db6d2dfa42ac8d821db8d493a44, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3613868102660323786, guid: c2e00db6d2dfa42ac8d821db8d493a44, type: 3}
       propertyPath: SceneSettings.RoomIndex
@@ -1498,7 +1498,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5456522116536683071, guid: 37c47f9928e3fef4bb9a9ffaafab5526, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1525,7 +1525,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1743227078
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1556,7 +1556,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &1743227079
 Transform:
@@ -1703,7 +1703,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1921013566
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1734,7 +1734,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &1921013567
 Transform:
@@ -1789,7 +1789,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2081924138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1820,7 +1820,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!114 &2081924139
 MonoBehaviour:
