@@ -137,7 +137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &9151642
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3220,7 +3220,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &1774888875
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -3903,7 +3903,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!135 &2096533544
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -4062,6 +4062,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 1507146986199628383, guid: cad656ce6a51a9a4c979f76b491be8be, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.67
+      objectReference: {fileID: 0}
     - target: {fileID: 2306676362684080034, guid: cad656ce6a51a9a4c979f76b491be8be, type: 3}
       propertyPath: m_Name
       value: Forest
@@ -4076,7 +4080,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7406207737761909568, guid: cad656ce6a51a9a4c979f76b491be8be, type: 3}
       propertyPath: m_LocalPosition.z
-      value: 16.31
+      value: 20.28
       objectReference: {fileID: 0}
     - target: {fileID: 7406207737761909568, guid: cad656ce6a51a9a4c979f76b491be8be, type: 3}
       propertyPath: m_LocalRotation.w
