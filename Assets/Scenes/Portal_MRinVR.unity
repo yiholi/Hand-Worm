@@ -699,6 +699,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d71beb1fcabd5a4ca7d9b3223707cbe, type: 3}
       insertIndex: -1
       addedObject: {fileID: 355706351}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 6d71beb1fcabd5a4ca7d9b3223707cbe, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 355706354}
   m_SourcePrefab: {fileID: 100100000, guid: 6d71beb1fcabd5a4ca7d9b3223707cbe, type: 3}
 --- !u!1 &355706284 stripped
 GameObject:
@@ -1259,6 +1262,26 @@ MonoBehaviour:
   installationRoutineCheckpoint:
     _installationRoutineId: 
     _installationVariants: []
+--- !u!114 &355706354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 355706284}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbe1a1bc01c07fa479a7a7dcffc084b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  transmitter: {fileID: 839804990}
+  oscAddress: /body/fullTracking
+  trackingPoints:
+  - {fileID: 355706348}
+  - {fileID: 355706343}
+  - {fileID: 355706310}
+  - {fileID: 355706332}
+  - {fileID: 355706305}
 --- !u!1 &375314030
 GameObject:
   m_ObjectHideFlags: 0
