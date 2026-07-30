@@ -915,9 +915,9 @@ MonoBehaviour:
   _closeOnPause: 0
   _mapBundle: {fileID: 0}
   _workInEditor: 0
-  _localHostMode: 0
-  _localHost: 192.168.56.1
-  _localPort: 7001
+  _localHostMode: 1
+  _localHost: 10.43.230.45
+  _localPort: 7000
 --- !u!4 &1147815501
 Transform:
   m_ObjectHideFlags: 0
