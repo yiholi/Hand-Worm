@@ -13,7 +13,6 @@ Material:
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords:
   - _CUSTOMWIND_ON
-  - _TRANSLUCENCYONOFF_ON
   m_InvalidKeywords:
   - _ALPHAPREMULTIPLY_ON
   - _CUSTOMCOLORSTINTING_ON
@@ -40,3 +39,4 @@ Material:
     - _GroundColor: {r: 0.028686337, g: 0.19245279, b: 0.059879947, a: 0.2509804}
     - _TopColor: {r: 0, g: 0.34901962, b: 0.0017377321, a: 1}
   m_BuildTextureStacks: []
+  m_AllowLocking: 1
