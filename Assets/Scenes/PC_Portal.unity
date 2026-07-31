@@ -308,6 +308,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: X Bot
       objectReference: {fileID: 0}
+    - target: {fileID: 7882376022164389543, guid: 3eb47b8f523f68342a62a0dcc0ddc5d1, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5866666021909216657, guid: 3eb47b8f523f68342a62a0dcc0ddc5d1, type: 3}
     m_RemovedGameObjects: []
@@ -900,11 +904,72 @@ MonoBehaviour:
   receiver: {fileID: 1147815500}
   oscAddress: /body/fullTracking
   trackingPoints:
+  - {fileID: 1055626613}
   - {fileID: 1055626612}
+  - {fileID: 1055626611}
+  - {fileID: 1055626610}
+  - {fileID: 1055626609}
+  - {fileID: 1055626608}
   - {fileID: 1055626607}
-  - {fileID: 1055626574}
+  - {fileID: 1055626606}
+  - {fileID: 1055626605}
+  - {fileID: 1055626604}
+  - {fileID: 1055626603}
+  - {fileID: 1055626602}
+  - {fileID: 1055626601}
+  - {fileID: 1055626600}
+  - {fileID: 1055626599}
+  - {fileID: 1055626598}
+  - {fileID: 1055626597}
   - {fileID: 1055626596}
+  - {fileID: 1055626595}
+  - {fileID: 1055626594}
+  - {fileID: 1055626593}
+  - {fileID: 1055626592}
+  - {fileID: 1055626591}
+  - {fileID: 1055626590}
+  - {fileID: 1055626589}
+  - {fileID: 1055626588}
+  - {fileID: 1055626587}
+  - {fileID: 1055626586}
+  - {fileID: 1055626585}
+  - {fileID: 1055626584}
+  - {fileID: 1055626583}
+  - {fileID: 1055626582}
+  - {fileID: 1055626581}
+  - {fileID: 1055626580}
+  - {fileID: 1055626579}
+  - {fileID: 1055626578}
+  - {fileID: 1055626577}
+  - {fileID: 1055626576}
+  - {fileID: 1055626575}
+  - {fileID: 1055626574}
+  - {fileID: 1055626573}
+  - {fileID: 1055626572}
+  - {fileID: 1055626571}
+  - {fileID: 1055626570}
   - {fileID: 1055626569}
+  - {fileID: 1055626568}
+  - {fileID: 1055626567}
+  - {fileID: 1055626566}
+  - {fileID: 1055626565}
+  - {fileID: 1055626564}
+  - {fileID: 1055626563}
+  - {fileID: 1055626562}
+  - {fileID: 1055626561}
+  - {fileID: 1055626560}
+  - {fileID: 1055626559}
+  - {fileID: 1055626558}
+  - {fileID: 1055626557}
+  - {fileID: 1055626556}
+  - {fileID: 1055626555}
+  - {fileID: 1055626554}
+  - {fileID: 1055626553}
+  - {fileID: 1055626552}
+  - {fileID: 1055626551}
+  - {fileID: 1055626550}
+  - {fileID: 1055626549}
+  - {fileID: 1055626614}
 --- !u!1 &1147815499
 GameObject:
   m_ObjectHideFlags: 0
