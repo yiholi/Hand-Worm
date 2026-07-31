@@ -904,6 +904,7 @@ MonoBehaviour:
   receiver: {fileID: 1147815500}
   oscAddress: /body/fullTracking
   trackingPoints:
+  - {fileID: 1055626614}
   - {fileID: 1055626613}
   - {fileID: 1055626612}
   - {fileID: 1055626611}
@@ -969,7 +970,6 @@ MonoBehaviour:
   - {fileID: 1055626551}
   - {fileID: 1055626550}
   - {fileID: 1055626549}
-  - {fileID: 1055626614}
 --- !u!1 &1147815499
 GameObject:
   m_ObjectHideFlags: 0
