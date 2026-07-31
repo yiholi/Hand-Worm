@@ -21,6 +21,7 @@ public class BodyTrackingSender : MonoBehaviour
     // ==========================================
     void Update()
     {
+        Debug.Log("Starting");
         // 1. 安全檢查：如果沒放發送器，或是清單是空的，就不要執行，避免報錯
         if (transmitter == null || trackingPoints == null || trackingPoints.Length == 0)
         {
@@ -62,5 +63,7 @@ public class BodyTrackingSender : MonoBehaviour
 
         // 4. 發送訊息：把這包裝滿全身數據的超級大包裹發射出去
         transmitter.Send(message);
+        Debug.Log("Send!");
+
     }
 }
