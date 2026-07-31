@@ -1278,6 +1278,71 @@ MonoBehaviour:
   oscAddress: /body/fullTracking
   trackingPoints:
   - {fileID: 355706350}
+  - {fileID: 355706349}
+  - {fileID: 355706348}
+  - {fileID: 355706347}
+  - {fileID: 355706346}
+  - {fileID: 355706345}
+  - {fileID: 355706343}
+  - {fileID: 355706342}
+  - {fileID: 355706341}
+  - {fileID: 355706340}
+  - {fileID: 355706339}
+  - {fileID: 355706338}
+  - {fileID: 355706337}
+  - {fileID: 355706336}
+  - {fileID: 355706335}
+  - {fileID: 355706334}
+  - {fileID: 355706333}
+  - {fileID: 355706332}
+  - {fileID: 355706331}
+  - {fileID: 355706330}
+  - {fileID: 355706329}
+  - {fileID: 355706328}
+  - {fileID: 355706327}
+  - {fileID: 355706326}
+  - {fileID: 355706325}
+  - {fileID: 355706324}
+  - {fileID: 355706323}
+  - {fileID: 355706322}
+  - {fileID: 355706321}
+  - {fileID: 355706320}
+  - {fileID: 355706319}
+  - {fileID: 355706318}
+  - {fileID: 355706317}
+  - {fileID: 355706316}
+  - {fileID: 355706315}
+  - {fileID: 355706314}
+  - {fileID: 355706313}
+  - {fileID: 355706312}
+  - {fileID: 355706311}
+  - {fileID: 355706310}
+  - {fileID: 355706309}
+  - {fileID: 355706308}
+  - {fileID: 355706307}
+  - {fileID: 355706306}
+  - {fileID: 355706305}
+  - {fileID: 355706304}
+  - {fileID: 355706303}
+  - {fileID: 355706302}
+  - {fileID: 355706301}
+  - {fileID: 355706300}
+  - {fileID: 355706299}
+  - {fileID: 355706298}
+  - {fileID: 355706297}
+  - {fileID: 355706296}
+  - {fileID: 355706295}
+  - {fileID: 355706294}
+  - {fileID: 355706293}
+  - {fileID: 355706292}
+  - {fileID: 355706291}
+  - {fileID: 355706290}
+  - {fileID: 355706290}
+  - {fileID: 355706289}
+  - {fileID: 355706288}
+  - {fileID: 355706287}
+  - {fileID: 355706286}
+  - {fileID: 355706285}
 --- !u!1 &375314030
 GameObject:
   m_ObjectHideFlags: 0
