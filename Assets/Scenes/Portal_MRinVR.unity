@@ -2380,7 +2380,7 @@ MonoBehaviour:
   _autoConnect: 1
   _closeOnPause: 0
   _mapBundle: {fileID: 0}
-  _workInEditor: 0
+  _workInEditor: 1
   _localHostMode: 0
   _localPortMode: 2
   _localReceiver: {fileID: 0}
