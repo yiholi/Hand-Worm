@@ -1276,6 +1276,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   transmitter: {fileID: 839804990}
   oscAddress: /body/fullTracking
+  threshold: 1
   trackingPoints:
   - {fileID: 355706350}
   - {fileID: 355706349}
@@ -1283,6 +1284,7 @@ MonoBehaviour:
   - {fileID: 355706347}
   - {fileID: 355706346}
   - {fileID: 355706345}
+  - {fileID: 355706344}
   - {fileID: 355706343}
   - {fileID: 355706342}
   - {fileID: 355706341}
@@ -1316,7 +1318,6 @@ MonoBehaviour:
   - {fileID: 355706313}
   - {fileID: 355706312}
   - {fileID: 355706311}
-  - {fileID: 355706310}
   - {fileID: 355706309}
   - {fileID: 355706308}
   - {fileID: 355706307}
