@@ -5,65 +5,96 @@ public class BodyTrackingSender : MonoBehaviour
 {
     // ==========================================
     // [宣告變數區塊]
-    // 這裡用來設定發送器，以及建立一個「清單」來存放你想追蹤的所有關節
+    // 這裡用來設定你在 Unity 面板上拉好的東西
     // ==========================================
     [Header("OSC 設定")]
     public OSCTransmitter transmitter; 
-    public string oscAddress = "/body/fullTracking"; // 我們統一用這一個頻道來傳送全身資料
+    public string oscAddress = "/body/fullTracking"; 
+
+    [Header("發送頻率設定")]
+    [Tooltip("對應你筆記的 threshold，設定幾秒發送一次資料。若要順暢不卡頓，建議在面板改為 0.02")]
+    public float threshold = 1.0f; 
 
     [Header("要追蹤的身體部位清單")]
-    [Tooltip("請在這裡設定數量，並依序將 MR 骨架的關節拖曳進來")]
-    public Transform[] trackingPoints; // 這會在 Unity 面板產生一個清單，讓你把關節拖進去
+    public Transform[] trackingPoints; 
+
+    // 🌟 這裡就是改成「兩個封包」的關鍵！
+    // 總共 66 個關節，一次裝 33 個，程式就會自動分成 2 個封包發送
+    private int batchSize = 33; 
+    
+    // 記錄上一次發送的時間 (你筆記裡的 t0)
+    private float lastSendTime = 0f; 
+    private bool hasShownError = false;
 
     // ==========================================
     // [持續更新區塊]
-    // 每一幀都會自動執行，把清單裡所有關節的「位置」與「旋轉」打包發送
+    // 每一幀都會自動執行，檢查時間到了沒
     // ==========================================
     void Update()
     {
-        Debug.Log("Starting");
-        // 1. 安全檢查：如果沒放發送器，或是清單是空的，就不要執行，避免報錯
+        // 1. 安全檢查：確認發送器和清單都有綁定，避免程式報錯當機
         if (transmitter == null || trackingPoints == null || trackingPoints.Length == 0)
         {
+            if (!hasShownError) { Debug.LogWarning("❌ 錯誤：發送端忘記綁定 OSC Transmitter 或是清單空的！"); hasShownError = true; }
             return; 
         }
+        hasShownError = false;
 
-        // 2. 建立新訊息：準備一個大包裹，貼上我們設定好的頻道標籤
-        OSCMessage message = new OSCMessage(oscAddress);
+        // 2. 獲取當前的時間 (你筆記裡的 t1)
+        float currentTime = Time.time;
 
-        // 3. 迴圈處理：讓程式自動把清單裡的關節一個一個拿出來處理
-        for (int i = 0; i < trackingPoints.Length; i++)
+        // 3. 核心邏輯：如果 (現在時間 - 上次發送時間) 大於設定的門檻
+        if (currentTime - lastSendTime > threshold)
         {
-            Transform joint = trackingPoints[i];
+            // 分批處理迴圈：每次跳 33 個步伐
+            // 第一次迴圈：處理第 0 ~ 32 個關節 (第一包)
+            // 第二次迴圈：處理第 33 ~ 65 個關節 (第二包)
+            for (int startIndex = 0; startIndex < trackingPoints.Length; startIndex += batchSize)
+            {
+                // 準備一個新包裹
+                OSCMessage message = new OSCMessage(oscAddress);
 
-            if (joint != null)
-            {
-                // 如果這個欄位有放關節，就把它的 3 個位置和 3 個旋轉角度塞進包裹裡
-                // 位置 (Position)
-                message.AddValue(OSCValue.Float(joint.position.x));
-                message.AddValue(OSCValue.Float(joint.position.y));
-                message.AddValue(OSCValue.Float(joint.position.z));
-                
-                // 旋轉角度 (Euler Angles，即我們在 Unity 面板看到的 X, Y, Z 旋轉值)
-                message.AddValue(OSCValue.Float(joint.eulerAngles.x));
-                message.AddValue(OSCValue.Float(joint.eulerAngles.y));
-                message.AddValue(OSCValue.Float(joint.eulerAngles.z));
+                // 包裹的第一個資料，放一個「整數標籤」，告訴接收端這包是從第幾個關節開始
+                message.AddValue(OSCValue.Int(startIndex));
+
+                // 計算這包貨車最多能裝到第幾個關節 (確保不會超過 66 這個總數)
+                int endIndex = Mathf.Min(startIndex + batchSize, trackingPoints.Length);
+
+                // 把這一批次 (33個) 的關節資料裝進去
+                for (int i = startIndex; i < endIndex; i++)
+                {
+                    Transform joint = trackingPoints[i];
+
+                    if (joint != null)
+                    {
+                        // 裝入世界座標位置 (Position)
+                        message.AddValue(OSCValue.Float(joint.position.x));
+                        message.AddValue(OSCValue.Float(joint.position.y));
+                        message.AddValue(OSCValue.Float(joint.position.z));
+                        
+                        // 裝入世界座標旋轉 (EulerAngles)
+                        message.AddValue(OSCValue.Float(joint.eulerAngles.x));
+                        message.AddValue(OSCValue.Float(joint.eulerAngles.y));
+                        message.AddValue(OSCValue.Float(joint.eulerAngles.z));
+                    }
+                    else
+                    {
+                        // 如果有空位，補上 6 個 0，確保資料排列順序不會錯亂
+                        message.AddValue(OSCValue.Float(0));
+                        message.AddValue(OSCValue.Float(0));
+                        message.AddValue(OSCValue.Float(0));
+                        message.AddValue(OSCValue.Float(0));
+                        message.AddValue(OSCValue.Float(0));
+                        message.AddValue(OSCValue.Float(0));
+                    }
+                }
+
+                // 發送這個裝了 33 個關節的封包
+                transmitter.Send(message);
             }
-            else
-            {
-                // 如果你不小心在清單裡留了空位，我們就塞入 0，確保資料的排列順序不會亂掉
-                message.AddValue(OSCValue.Float(0));
-                message.AddValue(OSCValue.Float(0));
-                message.AddValue(OSCValue.Float(0));
-                message.AddValue(OSCValue.Float(0));
-                message.AddValue(OSCValue.Float(0));
-                message.AddValue(OSCValue.Float(0));
-            }
+
+            // 4. 重置計時點：把當下時間記錄下來，當作下一次計算的起點
+            lastSendTime = currentTime;
         }
-
-        // 4. 發送訊息：把這包裝滿全身數據的超級大包裹發射出去
-        transmitter.Send(message);
-        Debug.Log("Send!");
-
     }
 }
