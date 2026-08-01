@@ -13,7 +13,7 @@ public class BodyTrackingSender : MonoBehaviour
 
     [Header("發送頻率設定")]
     [Tooltip("對應你筆記的 threshold，設定幾秒發送一次資料。若要順暢不卡頓，建議在面板改為 0.02")]
-    public float threshold = 1.0f; 
+    public float threshold = 0.3f; 
 
     [Header("要追蹤的身體部位清單")]
     public Transform[] trackingPoints; 
