@@ -277,7 +277,7 @@ Transform:
   m_GameObject: {fileID: 294808978}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.80640197, y: 1.9571012, z: -0.839671}
+  m_LocalPosition: {x: -0.63559157, y: 1.9818422, z: 1.0462438}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -344,6 +344,7 @@ GameObject:
   - component: {fileID: 379503739}
   - component: {fileID: 379503738}
   - component: {fileID: 379503740}
+  - component: {fileID: 379503741}
   m_Layer: 0
   m_Name: PlanOctopus
   m_TagString: Untagged
@@ -358,7 +359,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 379503737}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
   m_Name: 
@@ -381,7 +382,7 @@ MonoBehaviour:
     limbs: 1
     organAmount: 0.8
     appendageAmount: 0.55
-  rebuildNow: 0
+  rebuildNow: 1
   useUnscaledTime: 1
 --- !u!4 &379503739
 Transform:
@@ -418,6 +419,40 @@ MonoBehaviour:
   speed: 0.8
   useUnscaledTime: 1
   arms: 8
+--- !u!114 &379503741
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 379503737}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: "\u7DE3\u5206"
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
+  organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
+  gridCols: 0
+  glitchAmount: 0.35
+  colonyScale: 1
+  zooidScale: 0.95
+  facet: 0.3
+  iridescence: 0.6
+  tendrilLength: 0.5
+  glass: 1
+  swimPulse: 1
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.6
+    appendageAmount: 0.55
+  rebuildNow: 0
+  useUnscaledTime: 0
 --- !u!1 &380951214
 GameObject:
   m_ObjectHideFlags: 0
@@ -1244,6 +1279,91 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &1620897391
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1620897394}
+  - component: {fileID: 1620897393}
+  - component: {fileID: 1620897392}
+  m_Layer: 0
+  m_Name: PlanOctopus (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!114 &1620897392
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620897391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 219b014190ab2b445949593f80a2464b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  creatureScale: 0.35
+  boundsCenter: {x: -1.7, y: 1.5, z: 0}
+  boundsSize: {x: 3, y: 2, z: 3}
+  floorY: 0
+  drawGizmos: 1
+  speed: 0.8
+  useUnscaledTime: 1
+  arms: 8
+--- !u!114 &1620897393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620897391}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: "\u7DE3\u5206"
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 72e9b8cea46c7dd439ddaf426cb220dc, type: 2}
+  organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
+  colonyScale: 0.29
+  zooidScale: 0.49
+  facet: 0.28
+  iridescence: 0.38
+  tendrilLength: 1
+  glass: 0.51
+  swimPulse: 1
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.8
+    appendageAmount: 0.55
+  rebuildNow: 1
+  useUnscaledTime: 1
+--- !u!4 &1620897394
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620897391}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1701684718
 GameObject:
   m_ObjectHideFlags: 0
@@ -1895,6 +2015,7 @@ SceneRoots:
   - {fileID: 991459361}
   - {fileID: 2081924140}
   - {fileID: 379503739}
+  - {fileID: 1620897394}
   - {fileID: 23990119}
   - {fileID: 1743227079}
   - {fileID: 1921013567}
