@@ -77,12 +77,22 @@ namespace Chimera
                  "用這個調大小，ChimeraColony 的 Colony Scale 請保持 1。")]
         [Range(0.05f, 3f)] public float creatureScale = 0.35f;
 
-        [Header("活動範圍")]
+        [Header("活動範圍 (MR 魚缸設定)")]
         [Tooltip("範圍中心（世界座標）。")]
         public Vector3 boundsCenter = new Vector3(0f, 1.2f, 0f);
 
         [Tooltip("★ 完整邊長，不是半徑。3×3 的房間就填 (3, 2, 3)。")]
         public Vector3 boundsSize = new Vector3(3f, 2f, 3f);
+
+        // ========================================================
+        // ★ 新增：將旋轉功能完美整合在父類別，所有動物直接受惠
+        // ========================================================
+        [Tooltip("旋轉角度。可讓魚缸傾斜或對齊現實房間的牆壁。")]
+        public Vector3 boundsRotation = Vector3.zero;
+
+        [Tooltip("打勾後，直接使用此 GameObject 的 Transform 旋轉來控制魚缸角度，非常直覺！")]
+        public bool useTransformRotation = true;
+        // ========================================================
 
         [Tooltip("地面高度（世界座標，公尺）。MRUK 地板通常是 0。貼地的體制會踩在這個高度上。")]
         public float floorY = 0f;
@@ -106,6 +116,9 @@ namespace Chimera
         protected float _t;          // 自己累積的時間，不讀 Time.time
         protected float _heading;    // 水平朝向（弧度）
         bool _laidOut;
+
+        // 內部取得旋轉角度的捷徑
+        protected Quaternion BoundsRot => useTransformRotation ? transform.rotation : Quaternion.Euler(boundsRotation);
 
         /// 子類別實作：宣告骨架。用 Alloc() 把角色與大小填進去。
         protected abstract void Layout();
@@ -170,16 +183,19 @@ namespace Chimera
             for (int i = 0; i < n; i++) { _dir[i] = Vector3.up; _dyn[i] = 1f; }
         }
 
-        // ── 移動輔助 ────────────────────────────────────────────
+        // ── 移動輔助 (已全面升級為支援旋轉的 OBB 空間魔法) ──────────────
         /// 水平漫遊：基礎擺動 + 靠近邊界時把 heading 轉回中心。
-        /// 用轉向而不是事後 clamp —— clamp 會在牆邊產生黏住的停頓感。
         protected void SteerHeading(Vector3 p, float wanderRate, float wanderAmount, float dt)
         {
             _heading += Mathf.Sin(_t * wanderRate) * wanderAmount * dt * speed;
 
             Vector3 half = boundsSize * 0.5f;
-            float ox = Mathf.Abs(p.x - boundsCenter.x) / Mathf.Max(1e-4f, half.x);
-            float oz = Mathf.Abs(p.z - boundsCenter.z) / Mathf.Max(1e-4f, half.z);
+            
+            // ★ 將世界座標轉換為旋轉後的魚缸局部座標
+            Vector3 localP = Quaternion.Inverse(BoundsRot) * (p - boundsCenter);
+
+            float ox = Mathf.Abs(localP.x) / Mathf.Max(1e-4f, half.x);
+            float oz = Mathf.Abs(localP.z) / Mathf.Max(1e-4f, half.z);
             float edge = Mathf.Clamp01((Mathf.Max(ox, oz) - 0.70f) / 0.30f);
             if (edge <= 0f) return;
 
@@ -193,18 +209,33 @@ namespace Chimera
         /// 最後一道保險：把水平位置壓回盒子裡（轉向來不及時才會生效）。
         protected Vector3 ClampHorizontal(Vector3 p)
         {
+            Quaternion rot = BoundsRot;
+            Vector3 localP = Quaternion.Inverse(rot) * (p - boundsCenter);
             Vector3 half = boundsSize * 0.5f;
-            p.x = Mathf.Clamp(p.x, boundsCenter.x - half.x, boundsCenter.x + half.x);
-            p.z = Mathf.Clamp(p.z, boundsCenter.z - half.z, boundsCenter.z + half.z);
-            return p;
+
+            // ★ 進行局部座標的限制 (OBB)
+            localP.x = Mathf.Clamp(localP.x, -half.x, half.x);
+            localP.z = Mathf.Clamp(localP.z, -half.z, half.z);
+
+            return boundsCenter + rot * localP;
         }
 
         protected Vector3 ClampAll(Vector3 p)
         {
+            Quaternion rot = BoundsRot;
+            Vector3 localP = Quaternion.Inverse(rot) * (p - boundsCenter);
             Vector3 half = boundsSize * 0.5f;
-            p = ClampHorizontal(p);
-            p.y = Mathf.Clamp(p.y, Mathf.Max(floorY, boundsCenter.y - half.y), boundsCenter.y + half.y);
-            return p;
+
+            // ★ 進行 3D 全方位的局部座標限制 (OBB)
+            localP.x = Mathf.Clamp(localP.x, -half.x, half.x);
+            localP.y = Mathf.Clamp(localP.y, -half.y, half.y);
+            localP.z = Mathf.Clamp(localP.z, -half.z, half.z);
+
+            Vector3 worldP = boundsCenter + rot * localP;
+            
+            // 絕對地板防護 (世界座標)
+            worldP.y = Mathf.Max(floorY, worldP.y);
+            return worldP;
         }
 
         protected Vector3 Fwd => new Vector3(Mathf.Cos(_heading), 0f, Mathf.Sin(_heading));
@@ -241,13 +272,6 @@ namespace Chimera
         }
 
         // ── 步態 ────────────────────────────────────────────────
-        /// 步態相位 → 足部相對位移。
-        /// x = 沿前進方向的位移（-1..1，要再乘步幅），y = 抬起高度（0..1，要再乘抬腳高度）。
-        ///
-        /// ★ 支撐半程刻意寫成線性：腳著地時相對身體「等速後退」，配上 SlipFreeStride()
-        ///   算出來的步幅，腳掌在地上完全不打滑。
-        ///   前一版兩個半程都用 cos / max(0,sin)，結果是「騰空時往後移、著地時往前移」
-        ///   —— 正好是月球漫步，整隻看起來就是被推著走的。
         protected static void GaitOffset(float phase01, out float x, out float y)
         {
             float ph = Mathf.Repeat(phase01, 1f);
@@ -265,8 +289,6 @@ namespace Chimera
             }
         }
 
-        /// 不打滑的步幅：支撐半程走過的距離要正好等於身體同時間前進的距離。
-        /// 所以步幅不是自由參數 —— 它由「移動速度 ÷ 步頻」決定。
         protected static float SlipFreeStride(float bodySpeed, float gaitHz)
             => bodySpeed / (4f * Mathf.Max(0.05f, gaitHz));
 
@@ -275,12 +297,20 @@ namespace Chimera
         {
             if (!drawGizmos) return;
 
-            Gizmos.color = new Color(0.2f, 0.9f, 1f, 0.8f);
-            Gizmos.DrawWireCube(boundsCenter, boundsSize);
+            Quaternion rot = BoundsRot;
 
+            // ★ 完美畫出會跟著轉的青色大框框
+            Gizmos.color = new Color(0.2f, 0.9f, 1f, 0.8f);
+            Gizmos.matrix = Matrix4x4.TRS(boundsCenter, rot, boundsSize);
+            Gizmos.DrawWireCube(Vector3.zero, Vector3.one);
+
+            // ★ 畫出底部紅色的地板投影線 (跟著傾斜)
+            Gizmos.matrix = Matrix4x4.TRS(new Vector3(boundsCenter.x, floorY, boundsCenter.z), rot, boundsSize);
             Gizmos.color = new Color(1f, 0.35f, 0.35f, 0.7f);
-            Gizmos.DrawWireCube(new Vector3(boundsCenter.x, floorY, boundsCenter.z),
-                                new Vector3(boundsSize.x, 0f, boundsSize.z));
+            Gizmos.DrawWireCube(Vector3.zero, new Vector3(1f, 0f, 1f));
+
+            // 還原 Gizmos 矩陣，準備畫內部的球體
+            Gizmos.matrix = Matrix4x4.identity;
 
             if (_pos == null) return;
             for (int i = 0; i < _pos.Length; i++)

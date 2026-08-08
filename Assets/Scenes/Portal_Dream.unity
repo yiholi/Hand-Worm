@@ -309,6 +309,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: 3.79, y: 0, z: 0.75}
   boundsSize: {x: 4.55, y: 2, z: 4.16}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -1861,6 +1863,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -2.28, y: 1.5, z: 0}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -2663,6 +2667,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: 1.45, y: 1.7, z: -0.86}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -3298,7 +3304,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &1062783344
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4132,7 +4138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-08 17:36:19
+  label: 2026-08-08 18:31:04
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -4255,11 +4261,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.34
-  boundsCenter: {x: 5.04, y: 1.5, z: 4.8}
-  boundsSize: {x: 10.68, y: 9.3, z: 13.69}
-  floorY: -3.17
+  boundsCenter: {x: 7.2, y: 3.81, z: 10.22}
+  boundsSize: {x: 19.1, y: 11.38, z: 16}
+  boundsRotation: {x: -0, y: 27.7, z: 0}
+  useTransformRotation: 0
+  floorY: -1.84
   drawGizmos: 1
-  speed: 0.45
+  speed: 0.23
   useUnscaledTime: 1
   arms: 8
 --- !u!114 &1505098088
@@ -4715,6 +4723,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -0.81, y: 0, z: 2.02}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -5187,6 +5197,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -3.14, y: 0, z: 0.94}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -5552,7 +5564,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c607cc26a7e1a0946b0ee4d69df30b3b, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
