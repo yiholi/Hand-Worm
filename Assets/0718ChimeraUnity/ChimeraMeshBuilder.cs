@@ -14,6 +14,13 @@ namespace Chimera
         public bool limbs = true;
         [Range(0f, 1f)] public float organAmount = 0.6f;
 
+        // ★ 新增：專為您設計的四肢單獨控制器
+        [Header("四肢獨立控制 (Limbs)")]
+        [Tooltip("單獨控制四肢伸出來的長度")]
+        [Range(0.1f, 5f)] public float limbLengthMult = 1f;
+        [Tooltip("單獨控制四肢的粗細")]
+        [Range(0.1f, 3f)] public float limbThicknessMult = 1f;
+
         [Header("附肢 appendages")]
         [Range(0f, 1f)] public float appendageAmount = 0.55f;
     }
@@ -43,10 +50,6 @@ namespace Chimera
         }
 
         static Mesh _ico0, _ico1, _ico2;
-        // 注意：這裡不能用 ?? 運算子。
-        // UnityEngine.Object 覆寫了 ==，被銷毀的物件 == null 會回傳 true，
-        // 但 ?? 是 C# 語言層的 null 檢查，不會走覆寫的 ==，
-        // 於是它會把「已銷毀但參考還在」的 mesh 當成有效值傳出去 → MissingReferenceException。
         static Mesh Ico(int s)
         {
             if (s == 0) { if (_ico0 == null) _ico0 = IcoSphere.Create(0); return _ico0; }
@@ -131,9 +134,7 @@ namespace Chimera
         // ---------------- 器官 ----------------
         static void Eye(Buf b, Vector3 d, Vector3 at, float size, float roll)
         {
-            // 眼球晶體：略突出
             PushMesh(b, Ico(1), M(d, at + d * (size * 0.35f), size, roll), 0f, VType.Lens);
-            // 瞳：更外、深色、略扁。刻意不給高光白點。
             PushMesh(b, Ico(0), M(d, at + d * (size * 0.95f),
                 new Vector3(size * 0.55f, size * 0.42f, size * 0.55f), roll), 0f, VType.Void);
         }
@@ -176,9 +177,10 @@ namespace Chimera
             }
         }
 
-        static void Limb(Buf b, Vector3 d, Vector3 at, float len, float seed)
+        // ★ 修改了這裡，傳入 thickness 參數，從根部真正改變粗細
+        static void Limb(Buf b, Vector3 d, Vector3 at, float len, float thickness, float seed)
         {
-            var c = MakeCurve(at, Vector3.Lerp(d, Vector3.down, 0.35f).normalized, len, 0.30f, seed, 5, 0.085f);
+            var c = MakeCurve(at, Vector3.Lerp(d, Vector3.down, 0.35f).normalized, len, 0.30f, seed, 5, 0.085f * thickness);
             PushTube(b, c.pts, c.radii, 5, 0.9f, VType.Tissue);
             Vector3 tip = c.pts[c.pts.Count - 1];
             for (int j = 0; j < 3; j++)
@@ -186,16 +188,11 @@ namespace Chimera
                 float a = (float)j / 3f * Mathf.PI * 2f + seed;
                 Vector3 dd = new Vector3(Mathf.Cos(a) * 0.7f, -0.7f, Mathf.Sin(a) * 0.7f).normalized;
                 PushMesh(b, Ico(0), M(dd, tip + dd * (len * 0.09f),
-                    new Vector3(0.022f, len * 0.16f, 0.022f), 0f), 1f, VType.Bone);
+                    new Vector3(0.022f * thickness, len * 0.16f, 0.022f * thickness), 0f), 1f, VType.Bone);
             }
         }
 
-        // ================= 附肢層（依角色，供兩個入口共用） =================
-        // ★ 這幾塊原本寫死在 Build() 的 if/else 裡。抽出來之後，
-        //   Zone 版（管水母）與 Role 版（其他體制）長出來的東西完全一致，
-        //   所以換體制不會換掉美術方向。
-
-        /// 羽片扇列 + 膜葉。管水母的泳鐘區、其他體制的軀幹。
+        // ================= 附肢層 =================
         static void AppFins(Buf b, float S, float amount, System.Func<int, float> rnd,
                             System.Func<int, Vector3> dirAt, System.Func<Vector3, Vector3> basePt)
         {
@@ -218,7 +215,6 @@ namespace Chimera
             }
         }
 
-        /// 觸手 + 囊泡 + 突觸。管水母的營養區、章魚的腕、海兔的鰓突。
         static void AppDrift(Buf b, float S, float amount, System.Func<int, float> rnd,
                              System.Func<int, Vector3> dirAt, System.Func<Vector3, Vector3> basePt)
         {
@@ -240,7 +236,7 @@ namespace Chimera
                         0.25f, VType.Tissue);
                 }
             }
-            for (int i = 0; i < Mathf.RoundToInt(2f * amount); i++)   // 突觸
+            for (int i = 0; i < Mathf.RoundToInt(2f * amount); i++)   
             {
                 Vector3 d = dirAt(i + 41), c0 = basePt(d) + d * 0.18f;
                 PushMesh(b, Ico(0), M(Vector3.up, c0, 0.075f, 0f), 0.5f, VType.Tissue);
@@ -254,7 +250,6 @@ namespace Chimera
             }
         }
 
-        /// 細長觸手 + 棘刺。管水母的生殖區、獸與鳥的尾。
         static void AppTail(Buf b, float S, float amount, System.Func<int, float> rnd,
                             System.Func<int, Vector3> dirAt, System.Func<Vector3, Vector3> basePt)
         {
@@ -273,8 +268,6 @@ namespace Chimera
             }
         }
 
-        /// 剛毛／棘：短而硬，讀成肢節上的角質。
-        /// ★ 肢節刻意不給觸手 —— 腳上長觸手會讓步態完全讀不出來。
         static void AppBristles(Buf b, float amount, System.Func<int, float> rnd,
                                 System.Func<int, Vector3> dirAt, System.Func<Vector3, Vector3> basePt)
         {
@@ -285,7 +278,7 @@ namespace Chimera
             }
         }
 
-        // ================= 主入口 A：Zone（管水母／VerletSpine 用，行為不變） =================
+        // ================= 主入口 A：Zone =================
         public static Mesh Build(ZooidParams zp, Zone zone, OrganSettings cfg)
         {
             ChimeraRole role;
@@ -299,7 +292,7 @@ namespace Chimera
             return Build(zp, role, cfg);
         }
 
-        // ================= 主入口 B：Role（體制生物用） =================
+        // ================= 主入口 B：Role =================
         public static Mesh Build(ZooidParams zp, ChimeraRole role, OrganSettings cfg)
         {
             var b = new Buf();
@@ -322,9 +315,9 @@ namespace Chimera
             if (cfg.eyes)
             {
                 int ne = Mathf.RoundToInt((1f + rnd(101) * 4f) * organAmt * (isHead ? 1.8f : 1f));
-                if (isLimb) ne = Mathf.RoundToInt(ne * 0.4f);     // 腳上的眼睛要少，否則整隻讀成一團肉
+                if (isLimb) ne = Mathf.RoundToInt(ne * 0.4f);     
                 if (isShell) ne = Mathf.RoundToInt(ne * 0.3f);
-                if (ne == 2) ne = 3;                              // 絕不給剛好兩顆：兩顆對稱=人臉基模=角色
+                if (ne == 2) ne = 3;                              
                 bool cluster = rnd(107) > 0.62f;
                 for (int i = 0; i < ne; i++)
                 {
@@ -366,11 +359,13 @@ namespace Chimera
                 for (int i = 0; i < nl; i++)
                 {
                     Vector3 d = dirAt(i + 201);
-                    Limb(b, d, basePt(d), 0.55f + rnd(i + 203) * 0.45f, S + i * 3f);
+                    // ★ 修改了這裡：將您的專屬長度與粗細倍率乘進去
+                    float finalLen = (0.55f + rnd(i + 203) * 0.45f) * cfg.limbLengthMult;
+                    Limb(b, d, basePt(d), finalLen, cfg.limbThicknessMult, S + i * 3f);
                 }
             }
 
-            // ===== 附肢層：依角色，不再依位置 =====
+            // ===== 附肢層 =====
             if (!isHead && amount > 0.01f)
             {
                 switch (role)
@@ -379,7 +374,7 @@ namespace Chimera
                     case ChimeraRole.Drift: AppDrift(b, S, amount, rnd, dirAt, basePt); break;
                     case ChimeraRole.Tail: AppTail(b, S, amount, rnd, dirAt, basePt); break;
                     case ChimeraRole.Limb: AppBristles(b, amount, rnd, dirAt, basePt); break;
-                    case ChimeraRole.Shell: break;    // 殼：無附肢，否則螺旋線讀不出來
+                    case ChimeraRole.Shell: break;    
                 }
             }
 
@@ -388,10 +383,10 @@ namespace Chimera
             var mesh = new Mesh { name = "ChimeraOrgans" };
             if (b.pos.Count > 65000) mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
             mesh.SetVertices(b.pos);
-            mesh.SetUVs(1, b.uv1);          // TEXCOORD1: x = sway, y = type
+            mesh.SetUVs(1, b.uv1);          
             mesh.SetTriangles(b.tris, 0);
             mesh.RecalculateBounds();
-            // 法線不需要：shader 用 ddx/ddy 求面法線，flat shading 自動正確
+            
             return mesh;
         }
     }

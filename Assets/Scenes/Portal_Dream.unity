@@ -274,6 +274,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -1824,6 +1826,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -2624,6 +2628,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -4129,12 +4135,12 @@ MonoBehaviour:
   label: "\u7DE3\u5206"
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
-  organMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
+  organMaterial: {fileID: 2100000, guid: c4626f3b4d95c9e46a31972f54ed6af9, type: 2}
   livePreview: 1
   freezePerNodeShape: 0
-  windowMode: 1
+  windowMode: 0
   gridCols: 0
-  gridWindowScale: 1.98
+  gridWindowScale: 3.29
   subjectWindows:
   - serializedVersion: 2
     x: 0
@@ -4196,17 +4202,19 @@ MonoBehaviour:
     y: 0.7
     width: 0.36
     height: 0.3
-  colonyScale: 1.9
+  colonyScale: 0.85
   zooidScale: 0.48
   swimPulse: 1
-  tendrilLength: 1
+  tendrilLength: 0.896
   organs:
-    eyes: 1
-    mouths: 1
-    headBuds: 1
+    eyes: 0
+    mouths: 0
+    headBuds: 0
     limbs: 1
-    organAmount: 0.6
-    appendageAmount: 0.55
+    organAmount: 1
+    limbLengthMult: 4.04
+    limbThicknessMult: 0.56
+    appendageAmount: 0.662
   rebuildNow: 0
   useUnscaledTime: 0
 --- !u!114 &1505098087
@@ -4258,6 +4266,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -4645,6 +4655,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -5115,6 +5127,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -5309,6 +5323,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
