@@ -4132,18 +4132,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: "\u7DE3\u5206"
+  label: 2026-08-08 17:36:19
+  timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
   organMaterial: {fileID: 2100000, guid: c4626f3b4d95c9e46a31972f54ed6af9, type: 2}
   livePreview: 1
   freezePerNodeShape: 0
-  windowMode: 0
+  windowMode: 1
   gridCols: 0
-  gridWindowScale: 3.29
+  gridWindowScale: 2.35
   subjectWindows:
   - serializedVersion: 2
-    x: 0
+    x: 0.11
     y: 0
     width: 0.23
     height: 0.37
@@ -4202,18 +4203,42 @@ MonoBehaviour:
     y: 0.7
     width: 0.36
     height: 0.3
-  colonyScale: 0.85
-  zooidScale: 0.48
+  headWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  trunkWindows:
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  driftWindows:
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  tailWindows:
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  colonyScale: 1.2
+  zooidScale: 0.332
   swimPulse: 1
-  tendrilLength: 0.475
+  tendrilLength: 0.323
   organs:
     eyes: 0
     mouths: 0
     headBuds: 0
     limbs: 1
-    organAmount: 1
+    organAmount: 0.858
     limbLengthMult: 4.04
-    limbThicknessMult: 0.56
+    limbThicknessMult: 0.78
     appendageAmount: 0.424
   rebuildNow: 0
   useUnscaledTime: 0
@@ -4230,9 +4255,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.34
-  boundsCenter: {x: 3.29, y: 1.5, z: 4.8}
-  boundsSize: {x: 3, y: 2, z: 3}
-  floorY: 0
+  boundsCenter: {x: 5.04, y: 1.5, z: 4.8}
+  boundsSize: {x: 10.68, y: 9.3, z: 13.69}
+  floorY: -3.17
   drawGizmos: 1
   speed: 0.45
   useUnscaledTime: 1

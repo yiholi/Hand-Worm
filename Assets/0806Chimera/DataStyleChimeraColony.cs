@@ -7,14 +7,23 @@ namespace Chimera
     [AddComponentMenu("Chimera/Colony - Data Style（basemap 碎片）")]
     public class DataStyleChimeraColony : MonoBehaviour
     {
-        public enum WindowMode { Grid, Subject }
+        // ★ 修改：新增了 SubjectByPart (依部位指定) 模式
+        public enum WindowMode { Grid, SubjectRandom, SubjectByPart }
+        
+        public enum TimeLabelMode { None, OnStart, EveryMinute, EverySecond }
 
         [Header("來源")]
+        [Tooltip("您原本可以手動輸入的字串。")]
         public string label = "緣分";
+        
+        [Header("時間資料 (Data 時間)")]
+        [Tooltip("選擇如何將 Label 自動替換為目前的系統時間。")]
+        public TimeLabelMode timeLabelMode = TimeLabelMode.None;
+        private string _startupTimeLabel = "";
+
         public MonoBehaviour spineProviderBehaviour;
 
         [Header("材質（兩個都必須指定，否則不會生成）")]
-        [Tooltip("Body Material 請放身體專用的，Organ Material 請放 OrganGlitch 材質球。")]
         public Material bodyMaterial;
         public Material organMaterial;
 
@@ -23,25 +32,48 @@ namespace Chimera
         public bool freezePerNodeShape = false;
 
         [Header("Basemap 碎片")]
-        public WindowMode windowMode = WindowMode.Subject;
+        // ★ 預設幫你切換到我們新寫的「依部位指定」模式
+        public WindowMode windowMode = WindowMode.SubjectByPart;
         public int gridCols = 0;
         [Range(1f, 6f)] public float gridWindowScale = 1f;
 
+        [Header("隨機模式 (SubjectRandom) 共用圖庫")]
+        [Tooltip("這是原本的模式，所有的球都會從這個清單裡隨機抽圖。")]
         public List<Rect> subjectWindows = new List<Rect>
         {
             new Rect(0.00f, 0.00f, 0.23f, 0.37f),
             new Rect(0.17f, 0.00f, 0.36f, 0.26f),
             new Rect(0.53f, 0.00f, 0.47f, 0.36f),
             new Rect(0.46f, 0.23f, 0.30f, 0.24f),
-            new Rect(0.19f, 0.18f, 0.26f, 0.21f),
-            new Rect(0.12f, 0.31f, 0.17f, 0.16f),
-            new Rect(0.26f, 0.40f, 0.30f, 0.26f),
-            new Rect(0.52f, 0.47f, 0.48f, 0.29f),
-            new Rect(0.70f, 0.27f, 0.30f, 0.26f),
-            new Rect(0.00f, 0.35f, 0.42f, 0.45f),
-            new Rect(0.32f, 0.62f, 0.29f, 0.34f),
-            new Rect(0.60f, 0.70f, 0.36f, 0.30f),
         };
+
+        // =========================================================
+        // ★ 新增：專屬部位圖庫區塊 (SubjectByPart 模式專用)
+        // 在這裡，你可以為不同的部位，指定它們專屬的 Basemap 裁切區域。
+        // 當每分鐘發生突變時，該部位的球就只會從自己專屬的清單裡隨機重組！
+        // =========================================================
+        [Header("依部位指定模式 (SubjectByPart) 專屬圖庫")]
+        
+        [Tooltip("分配給『頭部 (Head)』的專屬圖片區域清單")]
+        public List<Rect> headWindows = new List<Rect> { 
+            new Rect(0.00f, 0.00f, 0.23f, 0.37f) // 預設放一張，你可以自己按 + 號增加
+        };
+        
+        [Tooltip("分配給『軀幹 (Trunk)』的專屬圖片區域清單")]
+        public List<Rect> trunkWindows = new List<Rect> { 
+            new Rect(0.17f, 0.00f, 0.36f, 0.26f) 
+        };
+        
+        [Tooltip("分配給『觸手/附肢 (Drift)』的專屬圖片區域清單")]
+        public List<Rect> driftWindows = new List<Rect> { 
+            new Rect(0.53f, 0.00f, 0.47f, 0.36f) 
+        };
+        
+        [Tooltip("分配給『尾巴 (Tail)』的專屬圖片區域清單")]
+        public List<Rect> tailWindows = new List<Rect> { 
+            new Rect(0.46f, 0.23f, 0.30f, 0.24f) 
+        };
+        // =========================================================
 
         [Header("整體縮放")]
         [Range(0.02f, 3f)] public float colonyScale = 1f;
@@ -76,8 +108,6 @@ namespace Chimera
         bool _needRebuildNextFrame;
         string _rebuildSig;
         float _editorPrevTime;
-        
-        // 保留優化：事先計算好 UV 窗格陣列，提升 CPU 效能
         Vector4[] _cachedWindows;
 
         static readonly int ID_Seg = Shader.PropertyToID("_Seg");
@@ -168,10 +198,42 @@ namespace Chimera
             }
         }
 
-        Vector4 ComputeWindow(int i, int n)
+        // ★ 核心修改：計算每顆球的裁切區域時，現在會讀取它的「部位角色 (role)」
+        Vector4 ComputeWindow(int i, int n, ChimeraRole role)
         {
-            if (windowMode == WindowMode.Subject && subjectWindows != null && subjectWindows.Count > 0)
+            if (windowMode == WindowMode.SubjectByPart)
             {
+                // 先預設一個圖庫
+                List<Rect> currentPool = subjectWindows;
+                
+                // 根據這顆球的部位，切換成它專屬的圖庫
+                if (role == ChimeraRole.Head && headWindows != null && headWindows.Count > 0) 
+                    currentPool = headWindows;
+                else if (role == ChimeraRole.Trunk && trunkWindows != null && trunkWindows.Count > 0) 
+                    currentPool = trunkWindows;
+                else if (role == ChimeraRole.Drift && driftWindows != null && driftWindows.Count > 0) 
+                    currentPool = driftWindows;
+                else if (role == ChimeraRole.Tail && tailWindows != null && tailWindows.Count > 0) 
+                    currentPool = tailWindows;
+
+                // 如果專屬圖庫是空的，就拿預設圖庫來墊背
+                if (currentPool == null || currentPool.Count == 0) 
+                    currentPool = subjectWindows;
+
+                if (currentPool != null && currentPool.Count > 0)
+                {
+                    // 在指定的專屬圖庫中，用 Hash (包含會變動的時間標籤) 隨機抽出一張
+                    var r = currentPool[(int)(Hash(label, i) % (uint)currentPool.Count)];
+                    float w = Mathf.Clamp(r.width, 0.01f, 1f);
+                    float h = Mathf.Clamp(r.height, 0.01f, 1f);
+                    float x = Mathf.Clamp(r.x, 0f, 1f - w);
+                    float yTop = Mathf.Clamp(r.y, 0f, 1f - h);
+                    return new Vector4(x, 1f - (yTop + h), w, h);
+                }
+            }
+            else if (windowMode == WindowMode.SubjectRandom && subjectWindows != null && subjectWindows.Count > 0)
+            {
+                // 原本的隨機模式
                 var r = subjectWindows[(int)(Hash(label, i) % (uint)subjectWindows.Count)];
                 float w = Mathf.Clamp(r.width, 0.01f, 1f);
                 float h = Mathf.Clamp(r.height, 0.01f, 1f);
@@ -180,6 +242,7 @@ namespace Chimera
                 return new Vector4(x, 1f - (yTop + h), w, h);
             }
 
+            // Grid 模式 (如果沒被選中，這段依然會保留以防萬一)
             int cols = gridCols > 0 ? gridCols : Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(n)));
             int rows = Mathf.Max(1, Mathf.CeilToInt(n / (float)cols));
             float cw = 1f / cols, ch = 1f / rows;
@@ -277,12 +340,44 @@ namespace Chimera
                 _roots.Add(root); _bodies.Add(br); _organRenderers.Add(or);
                 _params.Add(zp); _roles.Add(role);
                 
-                _cachedWindows[i] = ComputeWindow(i, n);
+                // ★ 將角色的資訊 (role) 傳給函式去計算裁切圖
+                _cachedWindows[i] = ComputeWindow(i, n, role);
             }
         }
 
         void LateUpdate()
         {
+            if (timeLabelMode != TimeLabelMode.None)
+            {
+                string newLabel = label;
+                System.DateTime now = System.DateTime.Now;
+
+                if (timeLabelMode == TimeLabelMode.OnStart)
+                {
+                    if (Application.isPlaying)
+                    {
+                        if (string.IsNullOrEmpty(_startupTimeLabel))
+                            _startupTimeLabel = now.ToString("yyyy-MM-dd HH:mm:ss");
+                        newLabel = _startupTimeLabel;
+                    }
+                }
+                else if (timeLabelMode == TimeLabelMode.EveryMinute)
+                {
+                    newLabel = now.ToString("yyyy-MM-dd HH:mm");
+                }
+                else if (timeLabelMode == TimeLabelMode.EverySecond)
+                {
+                    newLabel = now.ToString("yyyy-MM-dd HH:mm:ss");
+                }
+
+                if (label != newLabel)
+                {
+                    label = newLabel;
+                    rebuildNow = true;
+                }
+            }
+
+
             if (rebuildNow) Build();
             if (Spine == null || _roots.Count == 0) return;
 
@@ -344,7 +439,7 @@ namespace Chimera
                 root.localScale = Vector3.one * s;
 
                 // 取得快取的 UV 窗格 
-                Vector4 targetWindow = (_cachedWindows != null && i < _cachedWindows.Length) ? _cachedWindows[i] : ComputeWindow(i, n);
+                Vector4 targetWindow = (_cachedWindows != null && i < _cachedWindows.Length) ? _cachedWindows[i] : ComputeWindow(i, n, _roles[i]);
 
                 if (_bodies[i] != null)
                 {
@@ -376,7 +471,6 @@ namespace Chimera
                     _mpb.SetFloat(ID_Phase, zp.seed); 
                     _mpb.SetFloat(ID_Seed, zp.seed);  
                     
-                    // 推送原始的長度參數
                     _mpb.SetFloat(ID_Len, 0.4f + tendrilLength * 2.2f);
                     
                     _mpb.SetFloat(ID_Hue, zp.hue + 1.2f);
