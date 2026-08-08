@@ -101,10 +101,11 @@ Material:
     - _Amp: 0.121
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
-    - _Blocks: 2
-    - _Blowout: 0.303
+    - _Blocks: 12.9
+    - _Blowout: 0.215
     - _BumpScale: 1
-    - _Chroma: 0.0392
+    - _Burst: 0.154
+    - _Chroma: 0.0179
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -112,41 +113,43 @@ Material:
     - _Dark: 0
     - _DetailAlbedoMapScale: 1
     - _DetailNormalMapScale: 1
+    - _Drift: 0.0165
     - _DstBlend: 0
     - _DstBlendAlpha: 0
     - _EnvironmentReflections: 1
-    - _Facet: 0.3
+    - _Facet: 0.461
     - _Glass: 0.208
-    - _Glitch: 0.496
+    - _Glitch: 0.38
+    - _GlitchRate: 8.2
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _Hue: 0
     - _HueMix: 0.1
     - _Irid: 0.6
-    - _Lobes: 4.84
+    - _Lobes: 3.33
     - _Metallic: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.005
-    - _ProjScale: 1.24
-    - _Pulse: 1
-    - _Quantize: 0.279
+    - _ProjScale: 0.31
+    - _Pulse: 0.685
+    - _Quantize: 0.224
     - _QueueOffset: 0
-    - _Radial: 0.528
+    - _Radial: 0.27
     - _ReceiveShadows: 1
     - _RimPower: 4.69
     - _Seed: 0
-    - _Seg: 0.357
+    - _Seg: 0.364
     - _Smoothness: 0.5
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
-    - _Squash: 0.33
+    - _Squash: 0.7
     - _SrcBlend: 1
     - _SrcBlendAlpha: 1
     - _Surface: 0
-    - _Taper: 0
-    - _Tear: 0.14
-    - _Warp: 0
+    - _Taper: 0.455
+    - _Tear: 0.121
+    - _Warp: 0.181
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:

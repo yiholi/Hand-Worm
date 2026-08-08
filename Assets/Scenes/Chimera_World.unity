@@ -277,7 +277,7 @@ Transform:
   m_GameObject: {fileID: 294808978}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.63559157, y: 1.9818422, z: 1.0462438}
+  m_LocalPosition: {x: 0.20892014, y: 0.4472612, z: -0.31302315}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -416,7 +416,7 @@ MonoBehaviour:
   boundsSize: {x: 3, y: 2, z: 3}
   floorY: 0
   drawGizmos: 1
-  speed: 0.8
+  speed: 0.45
   useUnscaledTime: 1
   arms: 8
 --- !u!114 &379503741
@@ -435,15 +435,76 @@ MonoBehaviour:
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
   organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
+  livePreview: 1
+  freezePerNodeShape: 0
+  windowMode: 1
   gridCols: 0
-  glitchAmount: 0.35
-  colonyScale: 1
-  zooidScale: 0.95
-  facet: 0.3
-  iridescence: 0.6
-  tendrilLength: 0.5
-  glass: 1
+  gridWindowScale: 1
+  subjectWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  - serializedVersion: 2
+    x: 0.19
+    y: 0.18
+    width: 0.26
+    height: 0.21
+  - serializedVersion: 2
+    x: 0.12
+    y: 0.31
+    width: 0.17
+    height: 0.16
+  - serializedVersion: 2
+    x: 0.26
+    y: 0.4
+    width: 0.3
+    height: 0.26
+  - serializedVersion: 2
+    x: 0.52
+    y: 0.47
+    width: 0.48
+    height: 0.29
+  - serializedVersion: 2
+    x: 0.7
+    y: 0.27
+    width: 0.3
+    height: 0.26
+  - serializedVersion: 2
+    x: 0
+    y: 0.35
+    width: 0.42
+    height: 0.45
+  - serializedVersion: 2
+    x: 0.32
+    y: 0.62
+    width: 0.29
+    height: 0.34
+  - serializedVersion: 2
+    x: 0.6
+    y: 0.7
+    width: 0.36
+    height: 0.3
+  colonyScale: 0.65
+  zooidScale: 0.322
   swimPulse: 1
+  tendrilLength: 1
   organs:
     eyes: 1
     mouths: 1

@@ -2,23 +2,32 @@ Shader "Chimera/BodyGlitch"
 {
     // Opaque zooid body shader for Quest 3 / URP / OpenXR Single Pass Instanced.
     //
-    // ASCII ONLY on purpose. A previous version used CJK text and full-width
-    // punctuation in comments and ShaderLab reported
-    // "Parse error: unexpected $undefined" with line -1, which is the classic
-    // signature of the ShaderLab layer choking on a character it does not know.
-    // Keep this file pure ASCII.
+    // ASCII ONLY on purpose. ShaderLab reported "Parse error: unexpected
+    // $undefined" with line -1 on an earlier version that had CJK text and
+    // full-width punctuation in its comments. Keep this file pure ASCII.
     //
     // Mechanism: the whole creature shares one collage basemap. Each zooid
     // samples only the window given by _UvRect, then its own _Seed decides how
     // that window gets corrupted. One image torn across the colony.
     //
-    // VR safety: glitch inputs are object-space position and _Seed only.
+    // AUTHORING FIX, and the reason this file was rewritten:
+    // an earlier version multiplied Tear, Chroma, Blowout and Posterise all by
+    // one shared gate, hit = step(1 - _Glitch, h) * burst. With a low _Glitch
+    // that gate is zero across most of the surface, so dragging any of those
+    // four sliders was multiplying by zero and appeared to do nothing.
+    // Now every effect has its OWN gate off its OWN hash, so each slider
+    // responds independently. Chroma and Posterise also keep a permanent base
+    // fraction so they always show a response while being dragged.
+    //
+    // Time: corruption is driven by floor(_Time.y * _GlitchRate), so time is
+    // quantised into discrete steps. Continuous time makes the surface flow and
+    // reads as water; discrete steps read as dropped frames, and low-frequency
+    // jumps are far more comfortable in a headset than continuous shimmer.
+    //
+    // VR safety: glitch inputs are object-space position, _Seed, and time.
     // No screen position, no view direction, so both eyes compute the same
     // result and stereo fusion holds. Facet normal uses ddx/ddy, which is
     // geometry derived and therefore also eye consistent.
-    //
-    // Property names match the MaterialPropertyBlock pushed by
-    // DataStyleChimeraColony.
 
     Properties
     {
@@ -27,27 +36,37 @@ Shader "Chimera/BodyGlitch"
         _UvRect    ("UV Window offset xy size zw", Vector) = (0, 0, 1, 1)
         _ProjScale ("Projection Scale", Range(0.1, 2)) = 0.5
 
-        _Glitch   ("Glitch Amount", Range(0, 1)) = 0.35
-        _Blocks   ("Block Count", Range(2, 64)) = 14
-        _Tear     ("Tear", Range(0, 0.5)) = 0.12
-        _Chroma   ("Chroma Split", Range(0, 0.1)) = 0.012
-        _Blowout  ("Channel Blowout", Range(0, 1)) = 0.35
-        _Quantize ("Posterise", Range(0, 1)) = 0.25
+        // Master. Fraction of blocks eligible for corruption.
+        _Glitch     ("Glitch Amount", Range(0, 1)) = 0.3
+        _GlitchRate ("Glitch Rate steps per sec", Range(0, 24)) = 4
+        _Burst      ("Burst fraction of time corrupt", Range(0, 1)) = 0.5
+        _Drift      ("Drift", Range(0, 0.1)) = 0
+        _Blocks     ("Block Count", Range(2, 64)) = 10
 
-        _Seg    ("Segment", Range(0, 1)) = 0.4
-        _Radial ("Radial", Range(0, 1)) = 0.5
-        _Warp   ("Warp", Range(0, 1)) = 0.2
-        _Taper  ("Taper", Range(0, 1)) = 0.3
-        _Lobes  ("Lobes", Range(0, 8)) = 3
-        _Squash ("Squash", Range(0, 3)) = 1
-        _Seed   ("Seed", Float) = 0
+        // Each of these now has its own independent gate.
+        _Tear     ("Tear", Range(0, 0.5)) = 0.14
+        _Chroma   ("Chroma Split", Range(0, 0.1)) = 0.02
+        _Blowout  ("Channel Blowout", Range(0, 1)) = 0.2
+        _Quantize ("Posterise", Range(0, 1)) = 0.15
+
+        // Per-node values. Pushed by MaterialPropertyBlock at runtime, so the
+        // sliders here only affect the preview sphere and the authoring mode.
+        _Seg    ("Segment (per node)", Range(0, 1)) = 0.4
+        _Radial ("Radial (per node)", Range(0, 1)) = 0.45
+        _Warp   ("Warp (per node)", Range(0, 1)) = 0.15
+        _Taper  ("Taper (per node)", Range(0, 1)) = 0.3
+        _Lobes  ("Lobes (per node)", Range(0, 8)) = 3
+        _Squash ("Squash (per node)", Range(0, 3)) = 1
+        _Seed   ("Seed (per node)", Float) = 0
+        _Hue    ("Hue Shift (per node)", Float) = 0
         _Pulse  ("Pulse On", Range(0, 1)) = 1
-        _Amp    ("Displacement Amp", Range(0, 0.6)) = 0.22
 
-        _Facet    ("Facet", Range(0, 1)) = 0.3
-        _Irid     ("Rim Iridescence", Range(0, 2)) = 0.6
+        // Uniform across the whole creature, so these are owned by the material
+        // and never pushed per node. Dragging them always works.
+        _Amp      ("Displacement Amp", Range(0, 0.6)) = 0.12
+        _Facet    ("Facet", Range(0, 1)) = 0.1
+        _Irid     ("Rim Iridescence", Range(0, 2)) = 0.45
         _RimPower ("Rim Power", Range(0.5, 8)) = 3
-        _Hue      ("Hue Shift", Float) = 0
         _HueMix   ("Hue Shift Mix", Range(0, 1)) = 0.1
         _Dark     ("Darken", Range(0, 1)) = 0
         _Glass    ("Unused MPB compat", Range(0, 1)) = 0
@@ -88,6 +107,9 @@ Shader "Chimera/BodyGlitch"
                 float4 _UvRect;
                 float _ProjScale;
                 float _Glitch;
+                float _GlitchRate;
+                float _Burst;
+                float _Drift;
                 float _Blocks;
                 float _Tear;
                 float _Chroma;
@@ -100,12 +122,12 @@ Shader "Chimera/BodyGlitch"
                 float _Lobes;
                 float _Squash;
                 float _Seed;
+                float _Hue;
                 float _Pulse;
                 float _Amp;
                 float _Facet;
                 float _Irid;
                 float _RimPower;
-                float _Hue;
                 float _HueMix;
                 float _Dark;
                 float _Glass;
@@ -190,42 +212,61 @@ Shader "Chimera/BodyGlitch"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-                // Object-space planar projection.
-                float2 local = saturate(IN.basePosOS.xy * _ProjScale + 0.5);
+                // Time quantised into discrete steps. floor() so corruption
+                // JUMPS between states instead of smearing between them.
+                float tq = floor(_Time.y * _GlitchRate);
 
-                // Block hash.
+                // Burst envelope over time. Guarded so that _GlitchRate = 0 or
+                // _Burst = 1 gives burst = 1 rather than silently killing every
+                // effect, which is exactly the trap the old version fell into.
+                float burstH = Hash21(float2(tq, 41.0), _Seed + 5.0);
+                float burst = (_GlitchRate <= 0.001 || _Burst >= 0.999)
+                            ? 1.0
+                            : step(1.0 - _Burst, burstH);
+
+                // Object-space planar projection, with optional slow drift.
+                float2 local = IN.basePosOS.xy * _ProjScale + 0.5;
+                local.x += _Drift * _Time.y;
+                local = saturate(frac(local));
+
                 float2 blk = floor(local * _Blocks) / _Blocks;
-                float h = Hash21(blk, _Seed);
-                float hit = step(1.0 - _Glitch, h);
+                float ts = tq * 0.137;
 
-                // Block quantise: snap in-cell coords to the block corner,
-                // which gives the DCT blocking look.
-                float2 q = lerp(local, blk, _Quantize * hit);
+                // INDEPENDENT GATES. Each effect draws its own hash, so the
+                // corrupted blocks differ per effect and each slider produces a
+                // visible change on its own even when the others are at zero.
+                float gTear  = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 1.0)) * burst;
+                float gChrom = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 2.0)) * burst;
+                float gBlow  = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 3.0)) * burst;
+                float gQuant = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 4.0)) * burst;
+                float hTear  = Hash21(blk, _Seed + ts + 11.0);
 
-                // Land inside this node's own window.
+                // Posterise keeps a base fraction so the slider always responds.
+                float2 q = lerp(local, blk, _Quantize * (0.35 + 0.65 * gQuant));
+
                 float2 uv = _UvRect.xy + q * _UvRect.zw;
 
                 // Tear in FULL-IMAGE space so sampling deliberately escapes the
                 // node's own cell and bleeds in a neighbour's content. Crossing
                 // the fragment boundary is part of the effect, not a bug.
                 float row = floor(local.y * _Blocks);
-                float hr = Hash21(float2(row, 7.0), _Seed + 3.0);
-                uv.x += (h - 0.5) * _Tear * hit;
-                uv.x += (hr - 0.5) * _Tear * 0.5 * step(1.0 - _Glitch * 0.6, hr);
+                float hRow = Hash21(float2(row, 7.0), _Seed + ts + 13.0);
+                uv.x += (hTear - 0.5) * _Tear * gTear;
+                uv.x += (hRow - 0.5) * _Tear * 0.5 * step(1.0 - _Glitch * 0.6, hRow) * burst;
 
-                // Three channels offset slightly for chromatic split.
+                // Chroma also keeps a base fraction, same reason as Posterise.
+                float cd = (hTear - 0.5) * _Chroma * (0.35 + 0.65 * gChrom);
+
                 // Explicit LOD 0: uv jumps at block edges, and letting the GPU
                 // derive mips from that blows up the derivative and produces a
                 // shimmering aliased seam along every block boundary.
-                float cd = (h - 0.5) * _Chroma * hit;
                 half3 col;
                 col.r = SAMPLE_TEXTURE2D_LOD(_BaseMap, sampler_BaseMap, uv + float2(cd, 0.0), 0).r;
                 col.g = SAMPLE_TEXTURE2D_LOD(_BaseMap, sampler_BaseMap, uv, 0).g;
                 col.b = SAMPLE_TEXTURE2D_LOD(_BaseMap, sampler_BaseMap, uv - float2(cd, 0.0), 0).b;
 
                 // Channel blowout. Pure arithmetic, essentially free.
-                float bo = step(1.0 - _Glitch * 0.4, Hash21(blk, _Seed + 19.0)) * _Blowout;
-                col = lerp(col, saturate(col.brg * 1.6), bo);
+                col = lerp(col, saturate(col.brg * 1.6), _Blowout * gBlow);
 
                 col = HueShift(col, _Hue * _HueMix);
                 col *= 1.0 - _Dark;

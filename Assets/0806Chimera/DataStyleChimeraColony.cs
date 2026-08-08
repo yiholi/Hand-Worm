@@ -5,22 +5,25 @@ namespace Chimera
 {
     /// ★ 這是 ChimeraColony 的平行版本，不是取代。原本的 ChimeraColony.cs 保持不動。
     ///
-    /// 與原版的差別只有一件事：整隻生物共用一張 collage basemap，每個節點只取其中一個
-    /// UV 窗格（_UvRect），再由該節點自己的 _Seed 決定這一格怎麼壞。
-    /// 一張圖被整個群體撕開來各自持有一塊，沒有任何一顆球拿得到完整的圖。
+    /// 整隻生物共用一張 collage basemap，每個節點只取其中一個 UV 窗格（_UvRect），
+    /// 再由該節點自己的 _Seed 決定這一格怎麼壞。
+    ///
+    /// ★★ MaterialPropertyBlock 只推「每個節點真的不一樣」的值。
+    ///    _Facet / _Irid / _Glass / _Glitch / _Amp 這些整隻生物共用同一個值，
+    ///    用 MPB 推它們沒有任何好處，唯一效果是擋掉材質球上的滑桿。
+    ///    現在它們歸材質球所有，你在材質球上拉隨時生效，不需要任何開關。
     ///
     /// ★★ 同一個 GameObject 上不要同時啟用這個與原本的 ChimeraColony。
-    ///    兩者都會生成／清除子物件，會互相刪對方的 zooid。
-    ///    zooid 前綴刻意改成 DZooid_，所以萬一真的同時掛著，至少不會互相誤刪，
-    ///    但你會看到兩隻疊在一起。
-    ///
-    /// ★★ 節點數變動的重建：ChimeraBodyPlan.OnValidate() 只認得原版的 ChimeraColony，
-    ///    抓不到這個元件。所以這裡改成自己在 LateUpdate 比對 Spine.Count —— 
-    ///    拉 PlanBird 的 Wing Pairs 或 PlanOctopus 的 Arms 滑桿仍然會正確重建。
+    ///    zooid 前綴刻意改成 DZooid_，所以萬一同時掛著至少不會互相誤刪。
     [ExecuteAlways]
     [AddComponentMenu("Chimera/Colony - Data Style（basemap 碎片）")]
     public class DataStyleChimeraColony : MonoBehaviour
     {
+        /// 窗格怎麼決定。
+        /// Grid    = 整張圖均分成 n 格。每格都很小，素材會被切碎，看不出是什麼動物。
+        /// Subject = 一格對一隻動物，格子可以互相重疊。要讓觀眾認出素材就用這個。
+        public enum WindowMode { Grid, Subject }
+
         [Header("來源")]
         [Tooltip("參與者輸入的字串。同一個字串永遠長出同一隻群體。")]
         public string label = "緣分";
@@ -29,37 +32,77 @@ namespace Chimera
         public MonoBehaviour spineProviderBehaviour;
 
         [Header("材質（兩個都必須指定，否則不會生成）")]
-        [Tooltip("請用 Chimera/BodyGlitch 這支 shader 的材質球。")]
+        [Tooltip("請用 Chimera/BodyGlitch 這支 shader 的材質球。\n\n" +
+                 "★ 外觀參數現在幾乎全部在材質球上調：Glitch Amount / Glitch Rate / Burst / " +
+                 "Block Count / Tear / Chroma Split / Channel Blowout / Posterise / " +
+                 "Projection Scale / Displacement Amp / Facet / Rim Iridescence / Hue Shift Mix。\n" +
+                 "這個元件只負責「每顆球哪裡不一樣」。")]
         public Material bodyMaterial;
         public Material organMaterial;
 
+        [Header("編輯期")]
+        [Tooltip("持續更新（呼吸會動、改參數立刻重畫）。上機前可以關掉，不影響 build。")]
+        public bool livePreview = true;
+
+        [Tooltip("★ 打開時連 _Seg / _Radial / _Warp / _Taper / _Lobes / _Squash / _Hue 也不推，\n" +
+                 "27 顆球會共用材質球上的形態值，方便你單獨觀察某一組參數的效果。\n" +
+                 "_Seed 與 _UvRect 永遠會推，否則每顆球會長得一模一樣。")]
+        public bool freezePerNodeShape = false;
+
         [Header("Basemap 碎片")]
-        [Tooltip("整張圖切成幾欄。留 0 = 依節點數自動開方。\n" +
-                 "★ 改這個會重建整隻群體（格線分配會整個換一次）。")]
+        [Tooltip("★ 決定每顆球看到整張圖的哪一塊。\n\n" +
+                 "Grid：均分。27 個節點就是 1/30 張圖，大約 340px —— 一條魚有 800px 寬，" +
+                 "所以每顆球只會拿到一片魚鰭，認不出是什麼動物。\n\n" +
+                 "Subject：一格對一隻動物，允許重疊。要讓觀眾認出素材就用這個。")]
+        public WindowMode windowMode = WindowMode.Subject;
+
+        [Tooltip("Grid 模式：整張圖切成幾欄。留 0 = 依節點數自動開方。")]
         public int gridCols = 0;
 
-        [Tooltip("損壞程度。0 = 乾淨地展示自己那一格；1 = 大量區塊撕裂與色散。\n" +
-                 "即時生效，不觸發重建。")]
-        [Range(0f, 1f)] public float glitchAmount = 0.35f;
+        [Tooltip("Grid 模式：把每一格以中心為錨點放大這個倍率。\n" +
+                 "1 = 剛好不重疊。2 = 每格涵蓋四倍面積，鄰格內容互相重疊。")]
+        [Range(1f, 6f)] public float gridWindowScale = 1f;
+
+        [Tooltip("Subject 模式：每一隻動物在圖上的位置。\n\n" +
+                 "★ 座標是「正規化的圖片座標」，原點在左上角，跟 Photoshop 一致：\n" +
+                 "   X / Y = 左上角位置（0～1），W / H = 寬高（0～1）。\n" +
+                 "   程式會自己換算成 Unity 的 UV（原點左下）。\n\n" +
+                 "預設值是照 FADataChimera.png 目測量出來的，請一邊看 Scene 視窗一邊微調。\n" +
+                 "節點比動物多時會重複使用，同一隻動物出現在好幾顆球上、各自被裁得不一樣。")]
+        public List<Rect> subjectWindows = new List<Rect>
+        {
+            new Rect(0.00f, 0.00f, 0.23f, 0.37f),   // shark
+            new Rect(0.17f, 0.00f, 0.36f, 0.26f),   // blue tang
+            new Rect(0.53f, 0.00f, 0.47f, 0.36f),   // butterflyfish
+            new Rect(0.46f, 0.23f, 0.30f, 0.24f),   // angelfish
+            new Rect(0.19f, 0.18f, 0.26f, 0.21f),   // pigeon
+            new Rect(0.12f, 0.31f, 0.17f, 0.16f),   // ant
+            new Rect(0.26f, 0.40f, 0.30f, 0.26f),   // clownfish
+            new Rect(0.52f, 0.47f, 0.48f, 0.29f),   // dolphin
+            new Rect(0.70f, 0.27f, 0.30f, 0.26f),   // daisies
+            new Rect(0.00f, 0.35f, 0.42f, 0.45f),   // monarch wing
+            new Rect(0.32f, 0.62f, 0.29f, 0.34f),   // beetle
+            new Rect(0.60f, 0.70f, 0.36f, 0.30f),   // seagull
+        };
 
         [Header("整體縮放")]
-        [Tooltip("整隻群體的等比縮放。以頭端為錨點，位置與體型同時縮放。1 = 原尺寸。\n" +
+        [Tooltip("整隻群體的等比縮放。以頭端為錨點。1 = 原尺寸。\n" +
                  "★ 只對 VerletSpine（管水母）有效。用 ChimeraBodyPlan 的體制請改調該元件上的 " +
                  "Creature Scale，並把這個值留在 1。")]
         [Range(0.02f, 3f)] public float colonyScale = 1f;
 
         [Header("形態")]
         [Range(0.3f, 2f)] public float zooidScale = 0.95f;
-        [Range(0f, 1f)] public float facet = 0.30f;      // 照片素材上 facet 要比原版低
-        [Range(0f, 1f)] public float iridescence = 0.6f;
-        [Range(0f, 1f)] public float tendrilLength = 0.5f;
-        [Range(0f, 1f)] public float glass = 1f;
         public bool swimPulse = true;
+
+        [Tooltip("器官附肢的長度（推給 organ 材質的 _Len）。")]
+        [Range(0f, 1f)] public float tendrilLength = 0.5f;
 
         [Header("器官／附肢")]
         public OrganSettings organs = new OrganSettings();
 
         [Header("重建")]
+        [Tooltip("勾一下就重建。勾完會自動彈回，那是正常的。")]
         public bool rebuildNow;
 
         [Header("診斷")]
@@ -77,18 +120,14 @@ namespace Chimera
         readonly List<ZooidParams> _params = new List<ZooidParams>();
         readonly List<ChimeraRole> _roles = new List<ChimeraRole>();
 
-        /// 每個節點負責的 UV 窗格：(offset.x, offset.y, size.x, size.y)。
-        /// ★ 用節點 index 而不是空間位置決定格子，原因有兩個：
-        ///    1. ResetState() 在建立當下把所有節點都設在 _head，Build 時拿不到有意義的空間分佈。
-        ///    2. index 順序本身有語意（0 頭 / 1–4 軀幹 / 之後附肢），
-        ///       所以圖是「照身體結構的順序」被撕開的，而且重建後完全穩定。
-        readonly List<Vector4> _uvRects = new List<Vector4>();
-
         MaterialPropertyBlock _mpb;
         Mesh _bodyMesh;
         bool _needRebuildNextFrame;
         string _rebuildSig;
+        float _editorPrevTime;
 
+        // ★ 只保留真正逐節點的那幾個。_Facet / _Irid / _Glass / _Glitch / _Amp
+        //   刻意不在這裡，它們歸材質球所有。
         static readonly int ID_Seg = Shader.PropertyToID("_Seg");
         static readonly int ID_Radial = Shader.PropertyToID("_Radial");
         static readonly int ID_Warp = Shader.PropertyToID("_Warp");
@@ -97,37 +136,59 @@ namespace Chimera
         static readonly int ID_Lobes = Shader.PropertyToID("_Lobes");
         static readonly int ID_Squash = Shader.PropertyToID("_Squash");
         static readonly int ID_Pulse = Shader.PropertyToID("_Pulse");
-        static readonly int ID_Facet = Shader.PropertyToID("_Facet");
-        static readonly int ID_Glass = Shader.PropertyToID("_Glass");
-        static readonly int ID_Irid = Shader.PropertyToID("_Irid");
         static readonly int ID_Hue = Shader.PropertyToID("_Hue");
-        static readonly int ID_Dark = Shader.PropertyToID("_Dark");
+        static readonly int ID_UvRect = Shader.PropertyToID("_UvRect");
+        // organ 材質（舊 shader）用的
         static readonly int ID_Len = Shader.PropertyToID("_Len");
         static readonly int ID_Phase = Shader.PropertyToID("_Phase");
-        static readonly int ID_UvRect = Shader.PropertyToID("_UvRect");
-        static readonly int ID_Glitch = Shader.PropertyToID("_Glitch");
 
         void OnEnable()
         {
             rebuildNow = true;
 
-            // 同物件上還掛著並且啟用中的原版，會跟這個元件搶著生成／清除子物件
             var legacy = GetComponent<ChimeraColony>();
             if (legacy != null && legacy.enabled)
                 Debug.LogWarning("[Chimera] 同一個物件上同時啟用了 ChimeraColony 與 " +
                                  "DataStyleChimeraColony，會長出兩隻疊在一起。請停用其中一個。", this);
+
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.update += EditorTick;
+            _editorPrevTime = Time.realtimeSinceStartup;
+#endif
         }
 
-        /// 只有「會改變幾何」的欄位變動才重建。
-        /// gridCols 進簽章（它改變格線分配）；glitchAmount 不進（即時生效）。
+        void OnDisable()
+        {
+#if UNITY_EDITOR
+            UnityEditor.EditorApplication.update -= EditorTick;
+#endif
+            ClearZooids();
+        }
+
+#if UNITY_EDITOR
+        /// ★ 編輯期的心跳。
+        /// 沒有這段的話，[ExecuteAlways] 的 LateUpdate 只在場景被弄髒時跑一次，
+        /// 結果是呼吸不動、拉滑桿要點一下 Scene 視窗才看得到變化。
+        ///
+        /// ★ 材質球上的時間動畫（_Time.y）另外需要 Scene 視窗工具列的
+        ///   Always Refresh 打開，否則 shader 的時間不會前進。
+        void EditorTick()
+        {
+            if (this == null || !livePreview || Application.isPlaying) return;
+            LateUpdate();
+            UnityEditor.SceneView.RepaintAll();
+        }
+#endif
+
+        /// 只有「會改變幾何或窗格分配」的欄位變動才重建。
         void OnValidate()
         {
             string sig = $"{label}|{organs.eyes}{organs.mouths}{organs.headBuds}{organs.limbs}" +
-                         $"|{organs.organAmount}|{organs.appendageAmount}|{gridCols}";
+                         $"|{organs.organAmount}|{organs.appendageAmount}" +
+                         $"|{(bodyMaterial == null ? 0 : bodyMaterial.GetInstanceID())}" +
+                         $"|{(organMaterial == null ? 0 : organMaterial.GetInstanceID())}";
             if (sig != _rebuildSig) { _rebuildSig = sig; rebuildNow = true; }
         }
-
-        void OnDisable() { ClearZooids(); }
 
         ISpineProvider Spine
         {
@@ -140,7 +201,6 @@ namespace Chimera
             }
         }
 
-        /// provider 若是體制生物就拿得到，否則 null（走舊的 Zone 路徑）
         IBodyPlan Plan => Spine as IBodyPlan;
 
         static ChimeraRole ZoneToRole(Zone z)
@@ -154,14 +214,57 @@ namespace Chimera
             }
         }
 
+        /// FNV-1a(label + index)。同一個 label 永遠得到同一組窗格分配，重建後不會變。
+        static uint Hash(string s, int i)
+        {
+            unchecked
+            {
+                uint h = 2166136261u;
+                if (s != null) foreach (char c in s) { h ^= c; h *= 16777619u; }
+                h ^= (uint)(i + 1); h *= 16777619u;
+                return h;
+            }
+        }
+
+        /// 第 i 個節點該看整張圖的哪一塊。回傳 Unity UV 空間的 (offset.xy, size.zw)。
+        /// ★ 每幀重算，所以在 Inspector 微調 subjectWindows 會立刻看到結果，
+        ///   不需要重建整隻。成本是幾十次算術，可以忽略。
+        Vector4 ComputeWindow(int i, int n)
+        {
+            if (windowMode == WindowMode.Subject && subjectWindows != null && subjectWindows.Count > 0)
+            {
+                var r = subjectWindows[(int)(Hash(label, i) % (uint)subjectWindows.Count)];
+
+                // ★ Y 軸翻轉。subjectWindows 用左上原點（跟 Photoshop 一致，方便你量），
+                //   Unity 的 UV 原點在左下。
+                float w = Mathf.Clamp(r.width, 0.01f, 1f);
+                float h = Mathf.Clamp(r.height, 0.01f, 1f);
+                float x = Mathf.Clamp(r.x, 0f, 1f - w);
+                float yTop = Mathf.Clamp(r.y, 0f, 1f - h);
+                return new Vector4(x, 1f - (yTop + h), w, h);
+            }
+
+            int cols = gridCols > 0 ? gridCols : Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(n)));
+            int rows = Mathf.Max(1, Mathf.CeilToInt(n / (float)cols));
+            float cw = 1f / cols, ch = 1f / rows;
+            float cx = (i % cols) * cw + cw * 0.5f;
+            float cy = (i / cols) * ch + ch * 0.5f;
+
+            // 以格子中心為錨點放大 → 鄰格內容互相重疊
+            float k = Mathf.Max(1f, gridWindowScale);
+            float sw = Mathf.Min(1f, cw * k), sh = Mathf.Min(1f, ch * k);
+            return new Vector4(Mathf.Clamp(cx - sw * 0.5f, 0f, 1f - sw),
+                               Mathf.Clamp(cy - sh * 0.5f, 0f, 1f - sh),
+                               sw, sh);
+        }
+
         static void SafeDestroy(Object o)
         {
             if (o == null) return;
             if (Application.isPlaying) Destroy(o); else DestroyImmediate(o);
         }
 
-        /// 刪掉所有 zooid —— 不依賴快取清單，直接掃實際的子物件。
-        /// 只掃自己前綴的，不會動到原版 ChimeraColony 的 Zooid_。
+        /// 刪掉所有 zooid —— 只掃自己前綴的，不會動到原版 ChimeraColony 的 Zooid_。
         public void ClearZooids()
         {
             var kill = new List<GameObject>();
@@ -178,7 +281,7 @@ namespace Chimera
                 SafeDestroy(g);
             }
             _roots.Clear(); _bodies.Clear(); _organRenderers.Clear();
-            _params.Clear(); _roles.Clear(); _uvRects.Clear();
+            _params.Clear(); _roles.Clear();
         }
 
         public void Build()
@@ -209,11 +312,6 @@ namespace Chimera
             // 體制元件的 OnEnable 可能還沒跑到（元件初始化順序不保證），下一幀再試
             if (n <= 0) { rebuildNow = true; return; }
 
-            // 貼圖格線。gridCols 留 0 就開方——章魚 27 節點 → 6 欄 × 5 列 = 30 格，剛好夠且沒有空格。
-            int cols = gridCols > 0 ? gridCols : Mathf.Max(1, Mathf.CeilToInt(Mathf.Sqrt(n)));
-            int rows = Mathf.Max(1, Mathf.CeilToInt(n / (float)cols));
-
-            // 縮放錨點：頭端。（僅 VerletSpine 路徑用）
             Vector3 head = Spine.GetPoint(0);
 
             for (int i = 0; i < n; i++)
@@ -256,11 +354,6 @@ namespace Chimera
                     : head + (Spine.GetPoint(i) - head) * colonyScale;
                 root.rotation = Quaternion.FromToRotation(Vector3.up, Spine.GetForward(i));
 
-                // 這個節點負責整張圖的哪一格
-                _uvRects.Add(new Vector4((i % cols) / (float)cols,
-                                         (i / cols) / (float)rows,
-                                         1f / cols, 1f / rows));
-
                 _roots.Add(root); _bodies.Add(br); _organRenderers.Add(or);
                 _params.Add(zp); _roles.Add(role);
             }
@@ -272,26 +365,33 @@ namespace Chimera
             if (rebuildNow) Build();
             if (Spine == null || _roots.Count == 0) return;
 
-            // ★ 節點數變了就重建。原版靠 ChimeraBodyPlan.OnValidate() 主動通知，
-            //   但那段只認得 ChimeraColony，抓不到這個元件，所以改成自己比對。
+            // ★ 節點數變了就重建。ChimeraBodyPlan.OnValidate() 只認得原版的 ChimeraColony，
+            //   抓不到這個元件，所以改成自己比對。
             if (Spine.Count != _roots.Count) { rebuildNow = true; return; }
 
-            // Time.deltaTime 在 timeScale = 0 時是 0，Tick 開頭的
-            // if (dt <= 0f) return; 會讓骨架一步都不算。
-            float dt = Application.isPlaying
-                ? (useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime)
-                : 1f / 60f;
+            float dt, t;
+            if (Application.isPlaying)
+            {
+                dt = useUnscaledTime ? Time.unscaledDeltaTime : Time.deltaTime;
+                t = useUnscaledTime ? Time.unscaledTime : Time.time;
+            }
+            else
+            {
+                // ★ 編輯期用真實時間差，而不是固定的 1/60。固定值配上
+                //   EditorApplication.update 的不規則頻率，編輯器裡的移動速度
+                //   會跟 Play 模式完全不一樣。
+                float now = Time.realtimeSinceStartup;
+                dt = Mathf.Clamp(now - _editorPrevTime, 0f, 1f / 30f);
+                _editorPrevTime = now;
+                t = now;
+            }
 
-            // ★ 上限保護。Play 的第一幀（以及編譯、載入造成的卡頓幀）dt 可能是
-            // 好幾百毫秒，骨架會被一次推進太多而甩開。
             dt = Mathf.Min(dt, 1f / 30f);
+            if (dt <= 0f) dt = 1f / 60f;
             Spine.Tick(dt);
 
             var plan = Plan;
             int n = Mathf.Min(_roots.Count, Spine.Count);
-            float t = Application.isPlaying
-                ? (useUnscaledTime ? Time.unscaledTime : Time.time)
-                : 0f;
             Vector3 head = Spine.GetPoint(0);
 
             for (int i = 0; i < n; i++)
@@ -315,7 +415,7 @@ namespace Chimera
                 float s;
                 if (plan != null)
                 {
-                    // 體制生物：節點大小由骨架給（已含 creatureScale），不再依鏈上的位置遞減
+                    // 體制生物：節點大小由骨架給（已含 creatureScale）
                     s = zooidScale * plan.GetNodeRadius(i) * squashTerm * pulse;
                 }
                 else
@@ -331,22 +431,29 @@ namespace Chimera
                 if (_bodies[i] != null)
                 {
                     _mpb.Clear();
-                    _mpb.SetFloat(ID_Seg, zp.seg);
-                    _mpb.SetFloat(ID_Radial, zp.radial);
-                    _mpb.SetFloat(ID_Warp, zp.warp);
-                    _mpb.SetFloat(ID_Taper, zp.taper);
+
+                    // ★ 這兩個永遠要推：它們是「每顆球必須不一樣」的唯一來源。
                     _mpb.SetFloat(ID_Seed, zp.seed);
-                    _mpb.SetFloat(ID_Lobes, zp.lobes);
-                    _mpb.SetFloat(ID_Squash, zp.squash);
+                    _mpb.SetVector(ID_UvRect, ComputeWindow(i, n));
+
+                    // 形態：也是逐節點的，但可以暫時凍結來觀察材質球的效果
+                    if (!freezePerNodeShape)
+                    {
+                        _mpb.SetFloat(ID_Seg, zp.seg);
+                        _mpb.SetFloat(ID_Radial, zp.radial);
+                        _mpb.SetFloat(ID_Warp, zp.warp);
+                        _mpb.SetFloat(ID_Taper, zp.taper);
+                        _mpb.SetFloat(ID_Lobes, zp.lobes);
+                        _mpb.SetFloat(ID_Squash, zp.squash);
+                        _mpb.SetFloat(ID_Hue, zp.hue);
+                    }
                     _mpb.SetFloat(ID_Pulse, swimPulse ? 1f : 0f);
-                    _mpb.SetFloat(ID_Facet, facet);
-                    _mpb.SetFloat(ID_Glass, glass);
-                    _mpb.SetFloat(ID_Irid, iridescence);
-                    _mpb.SetFloat(ID_Hue, zp.hue);
-                    // ★ 這一節點負責的貼圖窗格與損壞程度
-                    _mpb.SetVector(ID_UvRect, _uvRects[i]);
-                    _mpb.SetFloat(ID_Glitch, glitchAmount);
-                    _mpb.SetFloat(ID_Dark, 0f);
+
+                    // ★ 以下刻意不推，全部交給材質球，所以那些滑桿隨時有效：
+                    //   _Glitch / _GlitchRate / _Burst / _Blocks / _Tear / _Chroma /
+                    //   _Blowout / _Quantize / _ProjScale / _Amp / _Facet / _Irid /
+                    //   _RimPower / _HueMix / _Dark / _Glass
+
                     _bodies[i].SetPropertyBlock(_mpb);
                 }
 
@@ -356,11 +463,7 @@ namespace Chimera
                     _mpb.Clear();
                     _mpb.SetFloat(ID_Phase, zp.seed);
                     _mpb.SetFloat(ID_Len, 0.4f + tendrilLength * 2.2f);
-                    _mpb.SetFloat(ID_Facet, Mathf.Min(1f, facet * 0.7f));
-                    _mpb.SetFloat(ID_Glass, glass);
-                    _mpb.SetFloat(ID_Irid, iridescence);
                     _mpb.SetFloat(ID_Hue, zp.hue + 1.2f);
-                    _mpb.SetFloat(ID_Dark, 0.25f);
                     or.SetPropertyBlock(_mpb);
                 }
             }
