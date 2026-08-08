@@ -4205,7 +4205,7 @@ MonoBehaviour:
   colonyScale: 0.85
   zooidScale: 0.48
   swimPulse: 1
-  tendrilLength: 0.896
+  tendrilLength: 0.475
   organs:
     eyes: 0
     mouths: 0
@@ -4214,7 +4214,7 @@ MonoBehaviour:
     organAmount: 1
     limbLengthMult: 4.04
     limbThicknessMult: 0.56
-    appendageAmount: 0.662
+    appendageAmount: 0.424
   rebuildNow: 0
   useUnscaledTime: 0
 --- !u!114 &1505098087

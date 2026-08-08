@@ -1,8 +1,7 @@
 Shader "Chimera/OrganGlitch"
 {
-    // 專為「附肢 (Organ)」設計的 Shader。
-    // 視覺與身體完全一致，並已移除會導致四肢脫離身體的錯誤縮放算式，
-    // 請直接使用 C# 面板上的 Organ Amount 與 Appendage Amount 來控制大小。
+    // 專為 Quest 3 MR 環境修復的附肢 Shader。
+    // 同樣加入 NaN 防護機制與 Fallback 標準深度通道。
     Properties
     {
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
@@ -10,7 +9,6 @@ Shader "Chimera/OrganGlitch"
         _UvRect    ("UV Window offset xy size zw", Vector) = (0, 0, 1, 1)
         _ProjScale ("Projection Scale", Range(0.1, 2)) = 0.5
 
-        // 視覺特效參數
         _Glitch     ("Glitch Amount", Range(0, 1)) = 0.3
         _GlitchRate ("Glitch Rate steps per sec", Range(0, 24)) = 4
         _Burst      ("Burst fraction of time corrupt", Range(0, 1)) = 0.5
@@ -21,12 +19,9 @@ Shader "Chimera/OrganGlitch"
         _Blowout    ("Channel Blowout", Range(0, 1)) = 0.2
         _Quantize   ("Posterise", Range(0, 1)) = 0.15
 
-        // C# 傳遞的參數
         _Seed       ("Seed (per node)", Float) = 0
         _Hue        ("Hue Shift (per node)", Float) = 0
-        
-        // 接收 C# 傳來的原始參數，但不強制變形模型以防脫離
-        _Len        ("Length", Float) = 1.0 
+        _Len        ("Length (附肢長度/大小)", Float) = 1.0 
         
         _Irid       ("Rim Iridescence", Range(0, 2)) = 0.45
         _RimPower   ("Rim Power", Range(0.5, 8)) = 3
@@ -123,9 +118,10 @@ Shader "Chimera/OrganGlitch"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                // ★ 修復核心：移除強制縮放，保持原始模型座標，四肢就不會脫離身體了！
-                float3 baseOS = IN.positionOS.xyz;
-                float3 nOS = normalize(IN.normalOS);
+                float3 baseOS = IN.positionOS.xyz * _Len;
+                
+                // ★ 致命修復：避免法線 Normalize(0) 崩潰
+                float3 nOS = normalize(IN.normalOS + float3(1e-5, 1e-5, 1e-5));
 
                 OUT.basePosOS = baseOS;
                 OUT.positionWS = TransformObjectToWorld(baseOS);
@@ -139,7 +135,6 @@ Shader "Chimera/OrganGlitch"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-                // 視覺邏輯與 Body 保持完全一致
                 float tq = floor(_Time.y * _GlitchRate);
                 float burstH = Hash21(float2(tq, 41.0), _Seed + 5.0);
                 float burst = (_GlitchRate <= 0.001 || _Burst >= 0.999) ? 1.0 : step(1.0 - _Burst, burstH);
@@ -176,8 +171,9 @@ Shader "Chimera/OrganGlitch"
                 col = HueShift(col, _Hue * _HueMix);
                 col *= 1.0 - _Dark;
 
-                float3 N = normalize(IN.normalWS);
-                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS);
+                // ★ 致命修復：避免視角 Normalize(0) 崩潰
+                float3 N = normalize(IN.normalWS + float3(1e-5, 1e-5, 1e-5));
+                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(1e-5, 1e-5, 1e-5));
 
                 Light mainLight = GetMainLight();
                 float ndl = saturate(dot(N, mainLight.direction)) * 0.5 + 0.5;   
@@ -194,5 +190,7 @@ Shader "Chimera/OrganGlitch"
             ENDHLSL
         }
     }
-    Fallback Off
+    
+    // ★ 關鍵修復：呼叫 Unity 內建的 URP Lit 材質球，補齊 MR 所需深度通道。
+    Fallback "Universal Render Pipeline/Lit"
 }

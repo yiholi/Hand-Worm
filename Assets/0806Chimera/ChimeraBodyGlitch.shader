@@ -1,7 +1,7 @@
 Shader "Chimera/BodyGlitch"
 {
-    // 還原最原始的 Data 視覺風格，但針對 Quest 3 拔除了耗能的切面法線 (ddx/ddy)。
-    // 保持 Opaque 設定，確保 MR Passthrough 渲染不會出錯。
+    // 專為 Quest 3 MR 環境修復的 Shader。
+    // 加入了 NaN 防護機制，並透過 Fallback 借用 URP 標準深度通道。
     Properties
     {
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
@@ -9,21 +9,16 @@ Shader "Chimera/BodyGlitch"
         _UvRect    ("UV Window offset xy size zw", Vector) = (0, 0, 1, 1)
         _ProjScale ("Projection Scale", Range(0.1, 2)) = 0.5
 
-        // ==========================================
-        // 完全還原原本的特效參數
-        // ==========================================
         _Glitch     ("Glitch Amount", Range(0, 1)) = 0.3
         _GlitchRate ("Glitch Rate steps per sec", Range(0, 24)) = 4
         _Burst      ("Burst fraction of time corrupt", Range(0, 1)) = 0.5
         _Drift      ("Drift", Range(0, 0.1)) = 0
         _Blocks     ("Block Count", Range(2, 64)) = 10
+        _Tear       ("Tear", Range(0, 0.5)) = 0.14
+        _Chroma     ("Chroma Split", Range(0, 0.1)) = 0.02
+        _Blowout    ("Channel Blowout", Range(0, 1)) = 0.2
+        _Quantize   ("Posterise", Range(0, 1)) = 0.15
 
-        _Tear     ("Tear", Range(0, 0.5)) = 0.14
-        _Chroma   ("Chroma Split", Range(0, 0.1)) = 0.02
-        _Blowout  ("Channel Blowout", Range(0, 1)) = 0.2
-        _Quantize ("Posterise", Range(0, 1)) = 0.15
-
-        // 逐節點參數
         _Seg    ("Segment (per node)", Range(0, 1)) = 0.4
         _Radial ("Radial (per node)", Range(0, 1)) = 0.45
         _Warp   ("Warp (per node)", Range(0, 1)) = 0.15
@@ -34,14 +29,11 @@ Shader "Chimera/BodyGlitch"
         _Hue    ("Hue Shift (per node)", Float) = 0
         _Pulse  ("Pulse On", Range(0, 1)) = 1
 
-        // 整體參數
         _Amp      ("Displacement Amp", Range(0, 0.6)) = 0.12
-        _Facet    ("Facet (已優化拔除)", Range(0, 1)) = 0.1
         _Irid     ("Rim Iridescence", Range(0, 2)) = 0.45
         _RimPower ("Rim Power", Range(0.5, 8)) = 3
         _HueMix   ("Hue Shift Mix", Range(0, 1)) = 0.1
         _Dark     ("Darken", Range(0, 1)) = 0
-        _Glass    ("Unused MPB compat", Range(0, 1)) = 0
     }
 
     SubShader
@@ -97,12 +89,10 @@ Shader "Chimera/BodyGlitch"
                 float _Hue;
                 float _Pulse;
                 float _Amp;
-                float _Facet;
                 float _Irid;
                 float _RimPower;
                 float _HueMix;
                 float _Dark;
-                float _Glass;
             CBUFFER_END
 
             struct Attributes
@@ -122,11 +112,14 @@ Shader "Chimera/BodyGlitch"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            // 原始變形邏輯 (用於身體)
+            // 負責計算模型頂點變形的函式
             float3 Displace(float3 p, float3 n)
             {
                 float seg = sin(p.y * 9.0 + _Seed * 6.283) * _Seg;
-                float ang = atan2(p.z, p.x);
+                
+                // ★ 致命修復 1：加上 1e-5 避免 Quest 3 顯示卡算到 0 導致 NaN 崩潰
+                float ang = atan2(p.z, p.x + 1e-5); 
+                
                 float rad = sin(ang * max(1.0, _Lobes) + _Seed * 3.1) * _Radial;
                 float warp = (sin(p.x * 4.3 + _Seed * 11.0)
                             + sin(p.y * 3.7 + _Seed * 7.0)
@@ -160,7 +153,8 @@ Shader "Chimera/BodyGlitch"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 float3 baseOS = IN.positionOS.xyz;
-                float3 nOS = normalize(IN.normalOS);
+                // ★ 致命修復 2：法線歸一化前加上微小數值，避免法線為 0 時產生 NaN 感染全畫面
+                float3 nOS = normalize(IN.normalOS + float3(1e-5, 1e-5, 1e-5));
                 float3 dispOS = Displace(baseOS, nOS);
 
                 OUT.basePosOS = baseOS;
@@ -175,7 +169,6 @@ Shader "Chimera/BodyGlitch"
                 UNITY_SETUP_INSTANCE_ID(IN);
                 UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-                // 完美還原您原版的破碎與 Tear 算式
                 float tq = floor(_Time.y * _GlitchRate);
                 float burstH = Hash21(float2(tq, 41.0), _Seed + 5.0);
                 float burst = (_GlitchRate <= 0.001 || _Burst >= 0.999) ? 1.0 : step(1.0 - _Burst, burstH);
@@ -212,9 +205,9 @@ Shader "Chimera/BodyGlitch"
                 col = HueShift(col, _Hue * _HueMix);
                 col *= 1.0 - _Dark;
 
-                // ★ 效能優化點：拔除原版 ddx/ddy 計算，直接使用平滑法線
-                float3 N = normalize(IN.normalWS);
-                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS);
+                // ★ 致命修復 3：計算燈光視角時加入微小數值，防止攝影機貼近物件中心時除以零崩潰
+                float3 N = normalize(IN.normalWS + float3(1e-5, 1e-5, 1e-5));
+                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(1e-5, 1e-5, 1e-5));
 
                 Light mainLight = GetMainLight();
                 float ndl = saturate(dot(N, mainLight.direction)) * 0.5 + 0.5;   
@@ -231,5 +224,8 @@ Shader "Chimera/BodyGlitch"
             ENDHLSL
         }
     }
-    Fallback Off
+    
+    // ★ 關鍵修復：呼叫 Unity 內建的 URP Lit 材質球。
+    // 這行會自動幫我們的自訂 Shader 補齊 MR 專案 (Portal/Depth API) 必備的「深度通道 DepthOnly」。
+    Fallback "Universal Render Pipeline/Lit"
 }
