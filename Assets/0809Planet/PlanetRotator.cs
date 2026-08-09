@@ -16,9 +16,15 @@ public class PlanetRotator : MonoBehaviour
     // 請把左邊 Hierarchy 裡的那個「body」物件拖曳到這裡！
     public GameObject virtualBody;
 
-    [Header("設定數值")]
+    [Header("旋轉數值設定 (你可以自行調整 Y 和 Z)")]
     // 需要背對門幾秒才能觸發轉動 (預設為 0.5 秒)
     public float lookAwayTime = 0.5f; 
+
+    // 【新增】：讓你自訂 Y 軸的基底角度 (因為你的模型需要 -45 度，直接填在這裡！)
+    public float baseYRotation = -45f; 
+
+    // 【新增】：讓你自訂 Z 軸的基底角度
+    public float baseZRotation = 0f;   
 
     // 防呆鎖：紀錄這次退回 MR 房間後，是不是已經轉過星球了
     private bool hasRotatedThisTime = false; 
@@ -35,10 +41,8 @@ public class PlanetRotator : MonoBehaviour
 
         if (virtualBody != null)
         {
-            // 自動尋找這個身體裡面所有的 Renderer (外觀渲染器)
             Renderer[] renderers = virtualBody.GetComponentsInChildren<Renderer>();
             
-            // 只要其中有一個 Renderer 是顯示的 (enabled == true)，就代表身體看得見
             foreach (Renderer r in renderers)
             {
                 if (r.enabled == true)
@@ -49,7 +53,6 @@ public class PlanetRotator : MonoBehaviour
             }
         }
 
-        // 如果「身體看不見 (isBodyVisible == false)」就代表觀眾在 MR 房間裡！
         bool isBodyHidden = !isBodyVisible;
 
         // -------------------------------------------------------------
@@ -58,7 +61,7 @@ public class PlanetRotator : MonoBehaviour
         Vector3 directionToDoor = doorLocation.position - playerHead.position;
         float angle = Vector3.Angle(playerHead.forward, directionToDoor);
 
-        // 印出除錯訊息，讓你在 Console 看到目前狀態
+        // 印出除錯訊息
         Debug.Log("身體是否隱藏: " + isBodyHidden + " | 轉過了嗎: " + hasRotatedThisTime + " | 目前夾角: " + angle);
 
         // -------------------------------------------------------------
@@ -72,8 +75,12 @@ public class PlanetRotator : MonoBehaviour
 
                 if (timer >= lookAwayTime)
                 {
+                    // 隨機生成 X 軸角度 (0 到 360)
                     float randomX = Random.Range(0f, 360f);
-                    planet200.localEulerAngles = new Vector3(randomX, 0f, 0f);
+
+                    // 【關鍵修改】：X 軸用隨機亂數，但 Y 軸和 Z 軸會完美套用你上面自己設定的數值！
+                    planet200.localEulerAngles = new Vector3(randomX, baseYRotation, baseZRotation);
+
                     hasRotatedThisTime = true; // 上鎖
                 }
             }
