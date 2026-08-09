@@ -3304,7 +3304,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1062783344
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -4138,7 +4138,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-08 18:31:04
+  label: 2026-08-09 08:37:29
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
