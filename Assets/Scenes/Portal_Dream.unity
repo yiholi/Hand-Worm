@@ -2088,15 +2088,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.71
-  boundsCenter: {x: 3.08, y: 0, z: 3.14}
-  boundsSize: {x: 6.04, y: 2, z: 5.77}
+  boundsCenter: {x: 3.59, y: 0, z: 4.66}
+  boundsSize: {x: 10.88, y: 2, z: 5.77}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
-  cerataClusters: 7
+  cerataClusters: 11
 --- !u!114 &631475313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2213,10 +2213,10 @@ MonoBehaviour:
     y: 0.23
     width: 0.3
     height: 0.24
-  colonyScale: 0.31
+  colonyScale: 0.17
   zooidScale: 0.95
   swimPulse: 1
-  tendrilLength: 0.132
+  tendrilLength: 0.37
   organs:
     eyes: 1
     mouths: 1
@@ -2260,8 +2260,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 2.33, y: 0, z: 2.09}
-  boundsSize: {x: 6.67, y: 2, z: 5.51}
+  boundsCenter: {x: 8.15, y: 0, z: 1.95}
+  boundsSize: {x: 12.4, y: 2, z: 8.06}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 0
@@ -2317,13 +2317,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 673428954}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.015317815, y: 0.38263083, z: -0.0063448464, w: 0.9237526}
+  m_LocalRotation: {x: 0.014276892, y: 0.50837046, z: -0.008429881, w: 0.8609789}
   m_LocalPosition: {x: -9.31, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 1.9, y: 45, z: 0}
+  m_LocalEulerAnglesHint: {x: 1.9, y: 61.12, z: 0}
 --- !u!114 &673428958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2336,7 +2336,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 02:24:48
+  label: 2026-08-10 09:08:06
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -2780,6 +2780,7 @@ GameObject:
   - component: {fileID: 841502554}
   - component: {fileID: 841502553}
   - component: {fileID: 841502555}
+  - component: {fileID: 841502556}
   m_Layer: 0
   m_Name: BodyVirtualCollider
   m_TagString: Untagged
@@ -2839,9 +2840,32 @@ MonoBehaviour:
   planet200: {fileID: 288482474}
   doorLocation: {fileID: 1119262269}
   virtualBody: {fileID: 355706284}
+  chimeraManager: {fileID: 841502556}
   lookAwayTime: 0.5
   baseYRotation: -45
   baseZRotation: 0
+--- !u!114 &841502556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 841502552}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2887f389ce28ce04985a030300997788, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chimeras:
+  - {fileID: 1505098085}
+  - {fileID: 918425446}
+  - {fileID: 631475311}
+  - {fileID: 1958275757}
+  - {fileID: 673428954}
+  minScale: 0.5
+  maxScale: 1.5
+  minSpeed: 0.5
+  maxSpeed: 1.5
 --- !u!1 &918425446
 GameObject:
   m_ObjectHideFlags: 0
@@ -2956,11 +2980,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 2.66, y: 0, z: 1.63}
-  boundsSize: {x: 5.01, y: 0, z: 4.49}
+  boundsCenter: {x: 4.11, y: 0, z: 3.19}
+  boundsSize: {x: 8.39, y: 1.93, z: 4.76}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: 0
+  floorY: 0.02
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -3856,7 +3880,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 02:24:48
+  label: 2026-08-10 09:08:06
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -3979,8 +4003,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.34
-  boundsCenter: {x: 7.53, y: 3.81, z: 11.35}
-  boundsSize: {x: 27.9, y: 11.38, z: 16}
+  boundsCenter: {x: 6.73, y: 3.81, z: 8.4}
+  boundsSize: {x: 20.4, y: 11.38, z: 16}
   boundsRotation: {x: -0, y: 39.5, z: 0}
   useTransformRotation: 0
   floorY: -1.84
@@ -4836,7 +4860,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 3.05, y: 2.83, z: 3.12}
+  boundsCenter: {x: 5.31, y: 2.83, z: 7.06}
   boundsSize: {x: 9.47, y: 4.84, z: 7.51}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
@@ -4907,7 +4931,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 02:24
+  label: 2026-08-10 09:08
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
