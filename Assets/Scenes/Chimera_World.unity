@@ -166,6 +166,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 1
@@ -199,6 +201,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: 1.61, y: 0, z: 1.32}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -277,7 +281,7 @@ Transform:
   m_GameObject: {fileID: 294808978}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.20892014, y: 0.4472612, z: -0.31302315}
+  m_LocalPosition: {x: 0.103903696, y: 1.618891, z: -0.13301289}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -381,6 +385,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -414,6 +420,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -1.7, y: 1.5, z: 0}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.45
@@ -432,6 +440,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   label: "\u7DE3\u5206"
+  timeLabelMode: 0
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
   organMaterial: {fileID: 2100000, guid: 908e40a8f57724f40bb40b30cad11b3b, type: 2}
@@ -501,6 +510,30 @@ MonoBehaviour:
     y: 0.7
     width: 0.36
     height: 0.3
+  headWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  trunkWindows:
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  driftWindows:
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  tailWindows:
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
   colonyScale: 0.65
   zooidScale: 0.322
   swimPulse: 1
@@ -511,6 +544,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.6
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 0
@@ -826,6 +861,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 1
@@ -859,6 +896,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: 1.01, y: 1.7, z: 2.15}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -1373,6 +1412,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -1.7, y: 1.5, z: 0}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -1407,6 +1448,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 1
   useUnscaledTime: 1
@@ -1736,6 +1779,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 1
@@ -1769,6 +1814,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -1.44, y: 0, z: 2.02}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -1914,6 +1961,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 1
@@ -1947,6 +1996,8 @@ MonoBehaviour:
   creatureScale: 0.35
   boundsCenter: {x: -2.33, y: 0, z: 0.94}
   boundsSize: {x: 3, y: 2, z: 3}
+  boundsRotation: {x: 0, y: 0, z: 0}
+  useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
@@ -2000,6 +2051,8 @@ MonoBehaviour:
     headBuds: 1
     limbs: 1
     organAmount: 0.8
+    limbLengthMult: 1
+    limbThicknessMult: 1
     appendageAmount: 0.55
   rebuildNow: 0
   useUnscaledTime: 1
