@@ -2067,13 +2067,14 @@ GameObject:
   - component: {fileID: 631475314}
   - component: {fileID: 631475313}
   - component: {fileID: 631475312}
+  - component: {fileID: 631475315}
   m_Layer: 0
   m_Name: PlanSeaHare
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &631475312
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2086,16 +2087,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26b52974dfafb6a40a6661af9b42cc1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  creatureScale: 0.35
-  boundsCenter: {x: -1.44, y: 0, z: 2.02}
-  boundsSize: {x: 3, y: 2, z: 3}
+  creatureScale: 0.71
+  boundsCenter: {x: 3.08, y: 0, z: 3.14}
+  boundsSize: {x: 6.04, y: 2, z: 5.77}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
-  cerataClusters: 8
+  cerataClusters: 7
 --- !u!114 &631475313
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2103,7 +2104,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631475311}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
   m_Name: 
@@ -2138,13 +2139,95 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631475311}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.023848956, y: 0.27160895, z: -0.0067328415, w: 0.96208864}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 2.84, y: 31.53, z: 0}
+--- !u!114 &631475315
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 631475311}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: 2026-08-10 02:16:16
+  timeLabelMode: 0
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
+  organMaterial: {fileID: 2100000, guid: c4626f3b4d95c9e46a31972f54ed6af9, type: 2}
+  livePreview: 1
+  freezePerNodeShape: 0
+  windowMode: 2
+  gridCols: 0
+  gridWindowScale: 1
+  subjectWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  headWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  trunkWindows:
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  driftWindows:
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  tailWindows:
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  colonyScale: 0.31
+  zooidScale: 0.95
+  swimPulse: 1
+  tendrilLength: 0.132
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.546
+    limbLengthMult: 1
+    limbThicknessMult: 1
+    appendageAmount: 0.55
+  rebuildNow: 0
+  useUnscaledTime: 1
 --- !u!1 &673428954
 GameObject:
   m_ObjectHideFlags: 0
@@ -2156,13 +2239,14 @@ GameObject:
   - component: {fileID: 673428957}
   - component: {fileID: 673428956}
   - component: {fileID: 673428955}
+  - component: {fileID: 673428958}
   m_Layer: 0
   m_Name: PlanBeast
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &673428955
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2176,8 +2260,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 1.61, y: 0, z: 1.32}
-  boundsSize: {x: 3, y: 2, z: 3}
+  boundsCenter: {x: 2.33, y: 0, z: 2.09}
+  boundsSize: {x: 6.67, y: 2, z: 5.51}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 0
@@ -2198,7 +2282,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 673428954}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
   m_Name: 
@@ -2233,13 +2317,95 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 673428954}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0.015317815, y: 0.38263083, z: -0.0063448464, w: 0.9237526}
   m_LocalPosition: {x: -9.31, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 1.9, y: 45, z: 0}
+--- !u!114 &673428958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 673428954}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: 2026-08-10 02:24:48
+  timeLabelMode: 3
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
+  organMaterial: {fileID: 2100000, guid: c4626f3b4d95c9e46a31972f54ed6af9, type: 2}
+  livePreview: 1
+  freezePerNodeShape: 0
+  windowMode: 2
+  gridCols: 0
+  gridWindowScale: 1
+  subjectWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  headWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  trunkWindows:
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  driftWindows:
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  tailWindows:
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  colonyScale: 1
+  zooidScale: 0.95
+  swimPulse: 1
+  tendrilLength: 0.5
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.6
+    limbLengthMult: 1
+    limbThicknessMult: 1
+    appendageAmount: 0.55
+  rebuildNow: 0
+  useUnscaledTime: 1
 --- !u!1 &700957725
 GameObject:
   m_ObjectHideFlags: 0
@@ -2689,7 +2855,7 @@ GameObject:
   - component: {fileID: 918425448}
   - component: {fileID: 918425447}
   m_Layer: 0
-  m_Name: PlanArthropod (1)
+  m_Name: PlanArthropod
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2790,11 +2956,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 0.21, y: 0, z: 5.27}
-  boundsSize: {x: 8.13, y: 0, z: 6.78}
+  boundsCenter: {x: 2.66, y: 0, z: 1.63}
+  boundsSize: {x: 5.01, y: 0, z: 4.49}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: 0.08
+  floorY: 0
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -2842,13 +3008,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 918425446}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.36032245, z: 0, w: 0.93282783}
+  m_LocalRotation: {x: 0.017093988, y: 0.36026195, z: -0.006602877, w: 0.9326712}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 42.24, z: 0}
+  m_LocalEulerAnglesHint: {x: 2.1, y: 42.24, z: 0}
 --- !u!1 &963158904
 GameObject:
   m_ObjectHideFlags: 0
@@ -3690,7 +3856,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 02:07:45
+  label: 2026-08-10 02:24:48
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -3813,9 +3979,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.34
-  boundsCenter: {x: 2.85, y: 3.81, z: 10.22}
-  boundsSize: {x: 19.1, y: 11.38, z: 16}
-  boundsRotation: {x: -0, y: 27.7, z: 0}
+  boundsCenter: {x: 7.53, y: 3.81, z: 11.35}
+  boundsSize: {x: 27.9, y: 11.38, z: 16}
+  boundsRotation: {x: -0, y: 39.5, z: 0}
   useTransformRotation: 0
   floorY: -1.84
   drawGizmos: 1
@@ -3864,13 +4030,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1505098085}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1 &1536035900
 GameObject:
   m_ObjectHideFlags: 0
@@ -4649,13 +4815,14 @@ GameObject:
   - component: {fileID: 1958275760}
   - component: {fileID: 1958275759}
   - component: {fileID: 1958275758}
+  - component: {fileID: 1958275761}
   m_Layer: 0
   m_Name: PlanBird
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1958275758
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4669,11 +4836,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 1.01, y: 1.7, z: 2.15}
-  boundsSize: {x: 3, y: 2, z: 3}
+  boundsCenter: {x: 3.05, y: 2.83, z: 3.12}
+  boundsSize: {x: 9.47, y: 4.84, z: 7.51}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: 0
+  floorY: 0.14
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -4686,7 +4853,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958275757}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d022fbe3a93748c46a9494f2f23755a2, type: 3}
   m_Name: 
@@ -4721,13 +4888,95 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958275757}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: 0, y: 0.34660822, z: 0, w: 0.93801004}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 40.56, z: 0}
+--- !u!114 &1958275761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958275757}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  label: 2026-08-10 02:24
+  timeLabelMode: 2
+  spineProviderBehaviour: {fileID: 0}
+  bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
+  organMaterial: {fileID: 2100000, guid: c4626f3b4d95c9e46a31972f54ed6af9, type: 2}
+  livePreview: 1
+  freezePerNodeShape: 0
+  windowMode: 2
+  gridCols: 0
+  gridWindowScale: 1
+  subjectWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  headWindows:
+  - serializedVersion: 2
+    x: 0
+    y: 0
+    width: 0.23
+    height: 0.37
+  trunkWindows:
+  - serializedVersion: 2
+    x: 0.17
+    y: 0
+    width: 0.36
+    height: 0.26
+  driftWindows:
+  - serializedVersion: 2
+    x: 0.53
+    y: 0
+    width: 0.47
+    height: 0.36
+  tailWindows:
+  - serializedVersion: 2
+    x: 0.46
+    y: 0.23
+    width: 0.3
+    height: 0.24
+  colonyScale: 1
+  zooidScale: 0.95
+  swimPulse: 1
+  tendrilLength: 0.5
+  organs:
+    eyes: 1
+    mouths: 1
+    headBuds: 1
+    limbs: 1
+    organAmount: 0.6
+    limbLengthMult: 1
+    limbThicknessMult: 1
+    appendageAmount: 0.55
+  rebuildNow: 0
+  useUnscaledTime: 1
 --- !u!1001 &2033922086
 PrefabInstance:
   m_ObjectHideFlags: 0
