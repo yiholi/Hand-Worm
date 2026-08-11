@@ -223,7 +223,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8064f46339e7a42978b32722976066, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 2
+  rotationSpeed: 0.5
 --- !u!4 &43013064 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 576941961222066687, guid: aa8ea3d66a87ed449832e8709ec90517, type: 3}
@@ -1901,6 +1901,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: -7511558181221131132, guid: 2a89a186a17a577458a1a645479f81eb, type: 3}
+      propertyPath: m_CastShadows
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 2a89a186a17a577458a1a645479f81eb, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 34f7b8b6432d955418335393cf0e38ab, type: 2}
@@ -1914,14 +1918,14 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a89a186a17a577458a1a645479f81eb, type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1243522201}
+      addedObject: {fileID: 1243522205}
   m_SourcePrefab: {fileID: 100100000, guid: 2a89a186a17a577458a1a645479f81eb, type: 3}
 --- !u!1 &1243522200 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 2a89a186a17a577458a1a645479f81eb, type: 3}
   m_PrefabInstance: {fileID: 1243522199}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &1243522201
+--- !u!114 &1243522205
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
