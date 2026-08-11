@@ -26,12 +26,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/Portal_MVP.unity
     guid: d96fdc247f5046442abe1415b5a67657
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/Portal_Dream.unity
     guid: 3b467a4f32b15864da0cf087d462a93c
   - enabled: 0
     path: Assets/Scenes/PC_Portal.unity
     guid: 1f1aff719cb719d4da10cb2ed3801175
+  - enabled: 1
+    path: Assets/Scenes/Portal_FrutigerAero.unity
+    guid: 3c3f73dbef4807a40b2b2f1e034f8a4d
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: bfa1182bd221b4ca89619141f66f1260, type: 2}
     Unity.XR.WindowsMR.Settings: {fileID: 11400000, guid: dc5a169419fa04987b057f65238cf3ba, type: 2}
