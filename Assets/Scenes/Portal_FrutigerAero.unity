@@ -218,7 +218,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa8064f46339e7a42978b32722976066, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: 2
+  rotationSpeed: 0.5
 --- !u!1 &51179900
 GameObject:
   m_ObjectHideFlags: 0
@@ -1783,7 +1783,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-12 09:37:52
+  label: 2026-08-12 09:48:12
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 029abdbde0b08b247b81c9cfd32b11f4, type: 2}
@@ -2242,7 +2242,7 @@ ParticleSystem:
   ringBufferLoopRange: {x: 0, y: 1}
   emitterVelocityMode: 1
   looping: 1
-  prewarm: 0
+  prewarm: 1
   playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
@@ -2309,8 +2309,8 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 10
-      minScalar: 5
+      scalar: 50
+      minScalar: 20
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -2480,8 +2480,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.3
-      minScalar: 0.05
+      scalar: 0.8
+      minScalar: 0.1
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -6958,7 +6958,7 @@ Transform:
   m_GameObject: {fileID: 1098940601}
   serializedVersion: 2
   m_LocalRotation: {x: -0.6532815, y: 0.27059805, z: 0.27059805, w: 0.6532815}
-  m_LocalPosition: {x: 18.5, y: 0, z: 22.1}
+  m_LocalPosition: {x: 18.5, y: -7.59, z: 22.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7664,7 +7664,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-12 09:37:52
+  label: 2026-08-12 09:48:12
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -7787,11 +7787,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.34
-  boundsCenter: {x: 6.73, y: 3.81, z: 8.4}
-  boundsSize: {x: 20.4, y: 11.38, z: 16}
-  boundsRotation: {x: -0, y: 39.5, z: 0}
+  boundsCenter: {x: 2.87, y: 5.71, z: 11.44}
+  boundsSize: {x: 29, y: 11.38, z: 16}
+  boundsRotation: {x: -0, y: 26.4, z: 0}
   useTransformRotation: 0
-  floorY: -1.84
+  floorY: 0.66
   drawGizmos: 1
   speed: 0.23
   useUnscaledTime: 1
@@ -8218,12 +8218,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cb781eee520b1b643a1163c2b661878b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  creatureScale: 0.35
-  boundsCenter: {x: 5.31, y: 2.83, z: 7.06}
-  boundsSize: {x: 9.47, y: 4.84, z: 7.51}
+  creatureScale: 2.64
+  boundsCenter: {x: 8.07, y: 13.3, z: 18.67}
+  boundsSize: {x: 32.2, y: 12.49, z: 29.7}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: 0.14
+  floorY: 7.33
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -8237,13 +8237,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958275757}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.34660822, z: 0, w: 0.93801004}
+  m_LocalRotation: {x: 0, y: -0.80020833, z: 0, w: 0.59972215}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: 40.56, z: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: -106.3, z: 0}
 --- !u!114 &1958275761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8256,7 +8256,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-12 09:37:52
+  label: 2026-08-12 09:48:12
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 4c9e60a779d1f9e4cae286f2668fe5b5, type: 2}
@@ -8311,10 +8311,10 @@ MonoBehaviour:
     y: 0.23
     width: 0.3
     height: 0.24
-  colonyScale: 2.21
-  zooidScale: 1.073
+  colonyScale: 0.78
+  zooidScale: 0.848
   swimPulse: 1
-  tendrilLength: 0.688
+  tendrilLength: 0.262
   organs:
     eyes: 1
     mouths: 1
