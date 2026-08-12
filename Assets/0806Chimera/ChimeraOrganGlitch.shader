@@ -1,7 +1,6 @@
 Shader "Chimera/OrganGlitch"
 {
-    // 專為 Quest 3 MR 環境修復的附肢 Shader。
-    // 同樣加入 NaN 防護機制與 Fallback 標準深度通道。
+    // 【屬性區塊 Properties】
     Properties
     {
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
@@ -106,6 +105,7 @@ Shader "Chimera/OrganGlitch"
                 return c * cs + cross(k, c) * sn + k * dot(k, c) * (1.0 - cs);
             }
 
+            // 保留原本的寫法確保相容性
             float Hash21(float2 p, float s)
             {
                 return frac(sin(dot(p, float2(12.9898, 78.233)) + s * 37.0) * 43758.5453);
@@ -118,10 +118,10 @@ Shader "Chimera/OrganGlitch"
                 UNITY_TRANSFER_INSTANCE_ID(IN, OUT);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
-                float3 baseOS = IN.positionOS.xyz * _Len;
+                float len = max(0.001, _Len);
+                float3 baseOS = IN.positionOS.xyz * len;
                 
-                // ★ 致命修復：避免法線 Normalize(0) 崩潰
-                float3 nOS = normalize(IN.normalOS + float3(1e-5, 1e-5, 1e-5));
+                float3 nOS = normalize(IN.normalOS + float3(0.00001, 0.00001, 0.00001));
 
                 OUT.basePosOS = baseOS;
                 OUT.positionWS = TransformObjectToWorld(baseOS);
@@ -139,11 +139,14 @@ Shader "Chimera/OrganGlitch"
                 float burstH = Hash21(float2(tq, 41.0), _Seed + 5.0);
                 float burst = (_GlitchRate <= 0.001 || _Burst >= 0.999) ? 1.0 : step(1.0 - _Burst, burstH);
 
-                float2 local = IN.basePosOS.xy * _ProjScale + 0.5;
+                float projScale = max(0.01, _ProjScale);
+                float2 local = IN.basePosOS.xy * projScale + 0.5;
                 local.x += _Drift * _Time.y;
                 local = saturate(frac(local));
 
-                float2 blk = floor(local * _Blocks) / _Blocks;
+                // 防護：限制 _Blocks 最小為 1
+                float blocks = max(1.0, _Blocks);
+                float2 blk = floor(local * blocks) / blocks;
                 float ts = tq * 0.137;
 
                 float gTear  = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 1.0)) * burst;
@@ -155,7 +158,7 @@ Shader "Chimera/OrganGlitch"
                 float2 q = lerp(local, blk, _Quantize * (0.35 + 0.65 * gQuant));
                 float2 uv = _UvRect.xy + q * _UvRect.zw;
 
-                float row = floor(local.y * _Blocks);
+                float row = floor(local.y * blocks);
                 float hRow = Hash21(float2(row, 7.0), _Seed + ts + 13.0);
                 uv.x += (hTear - 0.5) * _Tear * gTear;
                 uv.x += (hRow - 0.5) * _Tear * 0.5 * step(1.0 - _Glitch * 0.6, hRow) * burst;
@@ -171,9 +174,8 @@ Shader "Chimera/OrganGlitch"
                 col = HueShift(col, _Hue * _HueMix);
                 col *= 1.0 - _Dark;
 
-                // ★ 致命修復：避免視角 Normalize(0) 崩潰
-                float3 N = normalize(IN.normalWS + float3(1e-5, 1e-5, 1e-5));
-                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(1e-5, 1e-5, 1e-5));
+                float3 N = normalize(IN.normalWS + float3(0.00001, 0.00001, 0.00001));
+                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(0.00001, 0.00001, 0.00001));
 
                 Light mainLight = GetMainLight();
                 float ndl = saturate(dot(N, mainLight.direction)) * 0.5 + 0.5;   
@@ -181,7 +183,8 @@ Shader "Chimera/OrganGlitch"
                 half3 ambient = half3(0.32, 0.36, 0.42);   
                 half3 lit = col * (mainLight.color * ndl + ambient);
 
-                float fres = pow(saturate(1.0 - saturate(dot(N, V))), _RimPower);
+                float rimPow = max(0.1, _RimPower);
+                float fres = pow(saturate(1.0 - saturate(dot(N, V))), rimPow);
                 half3 irid = half3(0.5 + 0.5 * sin(_Seed * 2.0 + float3(0.0, 2.1, 4.2) + fres * 6.0));
                 lit += irid * fres * _Irid;
 
@@ -190,7 +193,5 @@ Shader "Chimera/OrganGlitch"
             ENDHLSL
         }
     }
-    
-    // ★ 關鍵修復：呼叫 Unity 內建的 URP Lit 材質球，補齊 MR 所需深度通道。
     Fallback "Universal Render Pipeline/Lit"
 }

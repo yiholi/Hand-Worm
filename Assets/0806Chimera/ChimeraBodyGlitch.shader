@@ -1,7 +1,7 @@
 Shader "Chimera/BodyGlitch"
 {
-    // 專為 Quest 3 MR 環境修復的 Shader。
-    // 加入了 NaN 防護機制，並透過 Fallback 借用 URP 標準深度通道。
+    // 【屬性區塊 Properties】
+    // 定義會在 Unity Inspector 面板上顯示的變數
     Properties
     {
         [MainTexture] _BaseMap ("Base Map", 2D) = "white" {}
@@ -36,6 +36,8 @@ Shader "Chimera/BodyGlitch"
         _Dark     ("Darken", Range(0, 1)) = 0
     }
 
+    // 【子著色器 SubShader】
+    // 定義渲染管線與模式
     SubShader
     {
         Tags
@@ -54,6 +56,7 @@ Shader "Chimera/BodyGlitch"
             ZTest LEqual
             Cull Back
 
+            // 【HLSL 程式碼區塊開始】
             HLSLPROGRAM
             #pragma vertex vert
             #pragma fragment frag
@@ -66,6 +69,7 @@ Shader "Chimera/BodyGlitch"
             TEXTURE2D(_BaseMap);
             SAMPLER(sampler_BaseMap);
 
+            // 確保 URP 可以批次處理變數
             CBUFFER_START(UnityPerMaterial)
                 float4 _BaseMap_ST;
                 float4 _UvRect;
@@ -95,6 +99,7 @@ Shader "Chimera/BodyGlitch"
                 float _Dark;
             CBUFFER_END
 
+            // 負責接收模型頂點資料
             struct Attributes
             {
                 float4 positionOS : POSITION;
@@ -102,6 +107,7 @@ Shader "Chimera/BodyGlitch"
                 UNITY_VERTEX_INPUT_INSTANCE_ID
             };
 
+            // 負責將資料從頂點著色器傳給像素著色器
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
@@ -112,13 +118,13 @@ Shader "Chimera/BodyGlitch"
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
-            // 負責計算模型頂點變形的函式
+            // 輔助函式：計算生物模型的扭曲變形
             float3 Displace(float3 p, float3 n)
             {
                 float seg = sin(p.y * 9.0 + _Seed * 6.283) * _Seg;
                 
-                // ★ 致命修復 1：加上 1e-5 避免 Quest 3 顯示卡算到 0 導致 NaN 崩潰
-                float ang = atan2(p.z, p.x + 1e-5); 
+                // 加入微小數值 (0.00001) 防止 p.x 為 0 時發生除以零崩潰
+                float ang = atan2(p.z, p.x + 0.00001); 
                 
                 float rad = sin(ang * max(1.0, _Lobes) + _Seed * 3.1) * _Radial;
                 float warp = (sin(p.x * 4.3 + _Seed * 11.0)
@@ -128,10 +134,11 @@ Shader "Chimera/BodyGlitch"
 
                 p += n * ((seg + rad + warp) * _Amp + breathe);
                 p.xz *= 1.0 - saturate(_Taper) * saturate(p.y * 0.5 + 0.5) * 0.6;
-                p.y *= lerp(1.0, _Squash, 0.5);
+                p.y *= lerp(1.0, max(0.01, _Squash), 0.5);
                 return p;
             }
 
+            // 輔助函式：計算色相偏移
             float3 HueShift(float3 c, float a)
             {
                 float3 k = float3(0.57735, 0.57735, 0.57735);
@@ -140,11 +147,13 @@ Shader "Chimera/BodyGlitch"
                 return c * cs + cross(k, c) * sn + k * dot(k, c) * (1.0 - cs);
             }
 
+            // 輔助函式：雜訊生成 (保留你原本的寫法，確保相容性)
             float Hash21(float2 p, float s)
             {
                 return frac(sin(dot(p, float2(12.9898, 78.233)) + s * 37.0) * 43758.5453);
             }
 
+            // 頂點著色器：計算模型形狀與位置
             Varyings vert(Attributes IN)
             {
                 Varyings OUT = (Varyings)0;
@@ -153,8 +162,9 @@ Shader "Chimera/BodyGlitch"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(OUT);
 
                 float3 baseOS = IN.positionOS.xyz;
-                // ★ 致命修復 2：法線歸一化前加上微小數值，避免法線為 0 時產生 NaN 感染全畫面
-                float3 nOS = normalize(IN.normalOS + float3(1e-5, 1e-5, 1e-5));
+                
+                // 加入微小數值防止法線長度為 0 導致 normalize 報錯
+                float3 nOS = normalize(IN.normalOS + float3(0.00001, 0.00001, 0.00001));
                 float3 dispOS = Displace(baseOS, nOS);
 
                 OUT.basePosOS = baseOS;
@@ -164,6 +174,7 @@ Shader "Chimera/BodyGlitch"
                 return OUT;
             }
 
+            // 像素著色器：計算最終顏色與 Glitch 特效
             half4 frag(Varyings IN) : SV_Target
             {
                 UNITY_SETUP_INSTANCE_ID(IN);
@@ -173,11 +184,14 @@ Shader "Chimera/BodyGlitch"
                 float burstH = Hash21(float2(tq, 41.0), _Seed + 5.0);
                 float burst = (_GlitchRate <= 0.001 || _Burst >= 0.999) ? 1.0 : step(1.0 - _Burst, burstH);
 
-                float2 local = IN.basePosOS.xy * _ProjScale + 0.5;
+                float projScale = max(0.01, _ProjScale);
+                float2 local = IN.basePosOS.xy * projScale + 0.5;
                 local.x += _Drift * _Time.y;
                 local = saturate(frac(local));
 
-                float2 blk = floor(local * _Blocks) / _Blocks;
+                // 限制 _Blocks 最小為 1，防止除以 0 導致材質預覽變灰
+                float blocks = max(1.0, _Blocks);
+                float2 blk = floor(local * blocks) / blocks;
                 float ts = tq * 0.137;
 
                 float gTear  = step(1.0 - _Glitch, Hash21(blk, _Seed + ts + 1.0)) * burst;
@@ -189,7 +203,7 @@ Shader "Chimera/BodyGlitch"
                 float2 q = lerp(local, blk, _Quantize * (0.35 + 0.65 * gQuant));
                 float2 uv = _UvRect.xy + q * _UvRect.zw;
 
-                float row = floor(local.y * _Blocks);
+                float row = floor(local.y * blocks);
                 float hRow = Hash21(float2(row, 7.0), _Seed + ts + 13.0);
                 uv.x += (hTear - 0.5) * _Tear * gTear;
                 uv.x += (hRow - 0.5) * _Tear * 0.5 * step(1.0 - _Glitch * 0.6, hRow) * burst;
@@ -205,9 +219,9 @@ Shader "Chimera/BodyGlitch"
                 col = HueShift(col, _Hue * _HueMix);
                 col *= 1.0 - _Dark;
 
-                // ★ 致命修復 3：計算燈光視角時加入微小數值，防止攝影機貼近物件中心時除以零崩潰
-                float3 N = normalize(IN.normalWS + float3(1e-5, 1e-5, 1e-5));
-                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(1e-5, 1e-5, 1e-5));
+                // 處理燈光與邊緣光，加入微小數值防止視角計算崩潰
+                float3 N = normalize(IN.normalWS + float3(0.00001, 0.00001, 0.00001));
+                float3 V = normalize(_WorldSpaceCameraPos - IN.positionWS + float3(0.00001, 0.00001, 0.00001));
 
                 Light mainLight = GetMainLight();
                 float ndl = saturate(dot(N, mainLight.direction)) * 0.5 + 0.5;   
@@ -215,7 +229,8 @@ Shader "Chimera/BodyGlitch"
                 half3 ambient = half3(0.32, 0.36, 0.42);   
                 half3 lit = col * (mainLight.color * ndl + ambient);
 
-                float fres = pow(saturate(1.0 - saturate(dot(N, V))), _RimPower);
+                float rimPow = max(0.1, _RimPower);
+                float fres = pow(saturate(1.0 - saturate(dot(N, V))), rimPow);
                 half3 irid = half3(0.5 + 0.5 * sin(_Seed * 2.0 + float3(0.0, 2.1, 4.2) + fres * 6.0));
                 lit += irid * fres * _Irid;
 
@@ -225,7 +240,6 @@ Shader "Chimera/BodyGlitch"
         }
     }
     
-    // ★ 關鍵修復：呼叫 Unity 內建的 URP Lit 材質球。
-    // 這行會自動幫我們的自訂 Shader 補齊 MR 專案 (Portal/Depth API) 必備的「深度通道 DepthOnly」。
+    // 自動借用 URP 內建的深度通道 (支援 MR)
     Fallback "Universal Render Pipeline/Lit"
 }
