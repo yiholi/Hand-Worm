@@ -1913,7 +1913,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:08:21
+  label: 2026-08-13 10:33:13
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 029abdbde0b08b247b81c9cfd32b11f4, type: 2}
@@ -2610,8 +2610,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 1
-      minScalar: 0.1
+      scalar: 1.5
+      minScalar: 0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -2987,15 +2987,15 @@ ParticleSystem:
   ShapeModule:
     serializedVersion: 6
     enabled: 1
-    type: 18
+    type: 17
     angle: 25
     length: 5
     boxThickness: {x: 0, y: 0, z: 0}
     radiusThickness: 1
-    donutRadius: 0.2
+    donutRadius: 0.1
     m_Position: {x: 0, y: 0, z: 1}
-    m_Rotation: {x: 0, y: 0, z: 0}
-    m_Scale: {x: 20, y: 3, z: 4}
+    m_Rotation: {x: 0, y: 0, z: 180}
+    m_Scale: {x: 20, y: 20, z: 20}
     placementMode: 0
     m_MeshMaterialIndex: 0
     m_MeshNormalOffset: 0
@@ -3074,7 +3074,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 1
+      value: 2
       mode: 0
       spread: 0
       speed:
@@ -3131,7 +3131,7 @@ ParticleSystem:
           m_PostInfinity: 2
           m_RotationOrder: 4
     arc:
-      value: 360
+      value: 180
       mode: 0
       spread: 0
       speed:
@@ -5012,7 +5012,7 @@ ParticleSystem:
     strength:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 1
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -7088,7 +7088,7 @@ Transform:
   m_GameObject: {fileID: 1098940601}
   serializedVersion: 2
   m_LocalRotation: {x: -0.6532815, y: 0.27059805, z: 0.27059805, w: 0.6532815}
-  m_LocalPosition: {x: 18.5, y: -4, z: 22.1}
+  m_LocalPosition: {x: 12.6, y: -4, z: 16.2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7800,7 +7800,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:08:21
+  label: 2026-08-13 10:33:13
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -8461,7 +8461,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:08:21
+  label: 2026-08-13 10:33:13
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 4c9e60a779d1f9e4cae286f2668fe5b5, type: 2}
