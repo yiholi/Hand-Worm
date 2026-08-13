@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 // 這個腳本用來偵測「Meta Eye Gaze Block」的視線是否注視指定的 Quad
-// 並且在身體隱藏時，讓 Planet 隨機改變 X 軸旋轉
+// 並且在身體隱藏時，讓 Planet 隨機改變 X 軸旋轉，以及讓天空盒隨機改變 Y 軸旋轉
 public class EyeGazePlanetController : MonoBehaviour
 {
     [Header("眼睛與視線設定")]
@@ -19,9 +19,13 @@ public class EyeGazePlanetController : MonoBehaviour
     [Tooltip("身體的根物件 (body)，腳本會透過它來檢查身體現在有沒有被渲染出來")]
     public GameObject bodyRoot; // 檢查身體是否隱藏的關鍵物件
 
-    [Header("星球設定")]
+    [Header("環境與星球設定")]
     [Tooltip("要旋轉的大球 (Planet)")]
-    public Transform planetTransform; // 準備被旋轉的星球
+    public Transform planetTransform; // 準備被改變 X 軸旋轉的星球
+
+    // 【新增】用來放你的天空盒 (360 galaxy)
+    [Tooltip("要旋轉的天空盒 (例如 360 galaxy)")]
+    public Transform skyboxSphereTransform; // 準備被改變 Y 軸旋轉的天空盒
 
     [Header("效能設定")]
     [Tooltip("每秒發射幾次視線射線？預設 20 次。數字越小越省效能。")]
@@ -36,7 +40,8 @@ public class EyeGazePlanetController : MonoBehaviour
     void Update()
     {
         // 防呆檢查：確保你在 Inspector 面板上該拉的物件都有拉進來，避免遊戲報錯
-        if (eyeTransform == null || planetTransform == null || bodyRoot == null) 
+        // 【修改】現在多加了一個 skyboxSphereTransform 的檢查
+        if (eyeTransform == null || planetTransform == null || bodyRoot == null || skyboxSphereTransform == null) 
         {
             return;
         }
@@ -87,21 +92,22 @@ public class EyeGazePlanetController : MonoBehaviour
             }
 
             // ==========================================
-            // 執行結果：如果這次檢查有看 Quad，且上次沒看，就改變 Planet 的 rotationX
+            // 執行結果：如果這次檢查有看 Quad，且上次沒看，就同時改變 Planet (X) 和 天空盒 (Y)
             // ==========================================
             if (isCurrentlyLookingAtQuad && !wasLookingAtQuad)
             {
-                // 隨機產生 0 到 360 之間的數字
-                float randomX = Random.Range(0f, 360f);
-
-                // 取得 Planet 目前的旋轉數值 (保留 Y 和 Z 不變)
-                Vector3 currentRotation = planetTransform.localEulerAngles;
-
-                // 將 Planet 的旋轉更新：X 帶入隨機數字，Y 和 Z 照舊
-                planetTransform.localEulerAngles = new Vector3(randomX, currentRotation.y, currentRotation.z);
+                // --- 1. 旋轉 Planet (改變 X 軸) ---
+                float randomX = Random.Range(0f, 360f); // 隨機產生 0 到 360 之間的數字
+                Vector3 currentPlanetRotation = planetTransform.localEulerAngles; // 取得 Planet 目前的旋轉數值
+                planetTransform.localEulerAngles = new Vector3(randomX, currentPlanetRotation.y, currentPlanetRotation.z); // 更新 X，保留 Y 和 Z
+                
+                // --- 2. 旋轉 天空盒 (改變 Y 軸) ---
+                float randomY = Random.Range(0f, 360f); // 隨機產生 0 到 360 之間的數字
+                Vector3 currentSkyboxRotation = skyboxSphereTransform.localEulerAngles; // 取得天空盒目前的旋轉數值
+                skyboxSphereTransform.localEulerAngles = new Vector3(currentSkyboxRotation.x, randomY, currentSkyboxRotation.z); // 更新 Y，保留 X 和 Z
                 
                 // 在 Console 印出訊息，讓你知道成功觸發了
-                Debug.Log("眼球追蹤觸發成功！Planet 的 Rotation X 變成：" + randomX);
+                Debug.Log("眼球追蹤觸發成功！Planet 的 Rotation X 變成：" + randomX + "，天空盒的 Rotation Y 變成：" + randomY);
             }
 
             // 把這一次的觀看狀態存起來，留給下一次 (0.05 秒後) 比對
