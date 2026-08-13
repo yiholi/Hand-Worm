@@ -1665,8 +1665,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.71
-  boundsCenter: {x: 3.59, y: 0, z: 4.66}
-  boundsSize: {x: 10.88, y: 2, z: 5.77}
+  boundsCenter: {x: -1.39, y: 0, z: 5.76}
+  boundsSize: {x: 6.64, y: 2, z: 5.77}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: -0.1
@@ -1682,13 +1682,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 631475311}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.023848956, y: 0.27160895, z: -0.0067328415, w: 0.96208864}
+  m_LocalRotation: {x: 0.024772286, y: 0.026692195, z: -0.00066166575, w: 0.9993365}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 2.84, y: 31.53, z: 0}
+  m_Father: {fileID: 1391266092}
+  m_LocalEulerAnglesHint: {x: 2.84, y: 3.06, z: 0}
 --- !u!114 &631475315
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1701,8 +1701,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 02:16:16
-  timeLabelMode: 0
+  label: 2026-08-13 10:57:35
+  timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 69ed86d90cbbb9240b8b96f6dd4f303f, type: 2}
   organMaterial: {fileID: 2100000, guid: 6d3c741cf06681a439bc83fb029fc6bf, type: 2}
@@ -1871,11 +1871,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 8.15, y: 0, z: 1.95}
-  boundsSize: {x: 12.4, y: 2, z: 8.06}
+  boundsCenter: {x: 5.1, y: 0, z: -0.94}
+  boundsSize: {x: 6.59, y: 2, z: 6.47}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: -0.3
+  floorY: -0.1
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -1894,13 +1894,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 673428954}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.033055656, y: 0.5080655, z: -0.019517919, w: 0.86046255}
+  m_LocalRotation: {x: -0, y: 0.15298584, z: -0, w: 0.9882284}
   m_LocalPosition: {x: -9.31, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 4.4, y: 61.12, z: 0}
+  m_Father: {fileID: 1391266092}
+  m_LocalEulerAnglesHint: {x: 0, y: 17.6, z: 0}
 --- !u!114 &673428958
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1913,7 +1913,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:33:13
+  label: 2026-08-13 10:57:35
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 029abdbde0b08b247b81c9cfd32b11f4, type: 2}
@@ -2122,8 +2122,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-10 01:06:20
-  timeLabelMode: 0
+  label: 2026-08-13 10:57:35
+  timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 8a4cdeaf26ad93b449b39d1094ca8f33, type: 2}
   organMaterial: {fileID: 2100000, guid: b6096e0e3d3629f42aa2c7472462c0cf, type: 2}
@@ -2205,11 +2205,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.35
-  boundsCenter: {x: 4.11, y: 0, z: 3.19}
-  boundsSize: {x: 8.39, y: 1.93, z: 4.76}
+  boundsCenter: {x: 1.67, y: 0, z: 3.19}
+  boundsSize: {x: 5.78, y: 1.93, z: 3.33}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
-  floorY: -0.1
+  floorY: 0
   drawGizmos: 1
   speed: 0.8
   useUnscaledTime: 1
@@ -2228,7 +2228,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1391266092}
   m_LocalEulerAnglesHint: {x: 2.1, y: 42.24, z: 0}
 --- !u!1 &963158904
 GameObject:
@@ -7581,7 +7581,12 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1505098089}
+  - {fileID: 918425450}
+  - {fileID: 631475314}
+  - {fileID: 1958275760}
+  - {fileID: 673428957}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1397789138
@@ -7800,7 +7805,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:33:13
+  label: 2026-08-13 10:57:35
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -7940,12 +7945,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1505098085}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
+  m_LocalRotation: {x: -0, y: 0.38268343, z: -0, w: 0.92387956}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1391266092}
   m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!1001 &1676929872
 PrefabInstance:
@@ -8424,8 +8429,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 2.64
-  boundsCenter: {x: 8.07, y: 13.3, z: 18.67}
-  boundsSize: {x: 32.2, y: 12.49, z: 29.7}
+  boundsCenter: {x: 14.76, y: 13.3, z: 10.2}
+  boundsSize: {x: 50, y: 12.49, z: 29.7}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 7.33
@@ -8442,13 +8447,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1958275757}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.80020833, z: 0, w: 0.59972215}
+  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
   m_LocalPosition: {x: 1, y: 1, z: 1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
-  m_LocalEulerAnglesHint: {x: 0, y: -106.3, z: 0}
+  m_Father: {fileID: 1391266092}
+  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
 --- !u!114 &1958275761
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8461,7 +8466,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 10:33:13
+  label: 2026-08-13 10:57:35
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 4c9e60a779d1f9e4cae286f2668fe5b5, type: 2}
@@ -8669,11 +8674,6 @@ SceneRoots:
   - {fileID: 1676929872}
   - {fileID: 288482473}
   - {fileID: 1391266092}
-  - {fileID: 1505098089}
-  - {fileID: 918425450}
-  - {fileID: 631475314}
-  - {fileID: 1958275760}
-  - {fileID: 673428957}
   - {fileID: 51179901}
   - {fileID: 1812450677}
   - {fileID: 1191809150}
