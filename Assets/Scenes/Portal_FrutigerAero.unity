@@ -404,7 +404,7 @@ Transform:
   m_GameObject: {fileID: 297352861}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0.7163019, z: 0, w: 0.69779044}
-  m_LocalPosition: {x: -1.66, y: 1, z: 0.58}
+  m_LocalPosition: {x: -0.16, y: 1, z: -0.25}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -422,7 +422,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21
+  label: 2026-08-13 12:26
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -520,16 +520,16 @@ MonoBehaviour:
   colonyScale: 1.2
   zooidScale: 0.332
   swimPulse: 1
-  tendrilLength: 0.323
+  tendrilLength: 0.802
   organs:
     eyes: 0
     mouths: 0
-    headBuds: 0
+    headBuds: 1
     limbs: 1
     organAmount: 0.858
-    limbLengthMult: 4.04
+    limbLengthMult: 3.72
     limbThicknessMult: 0.78
-    appendageAmount: 0.424
+    appendageAmount: 1
   rebuildNow: 0
   useUnscaledTime: 0
 --- !u!114 &297352864
@@ -545,13 +545,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   creatureScale: 0.85
-  boundsCenter: {x: -1.66, y: 1, z: 0.58}
+  boundsCenter: {x: -0.16, y: 1, z: -0.25}
   boundsSize: {x: 20, y: 6.27, z: 20}
   boundsRotation: {x: 0, y: 0, z: 0}
   useTransformRotation: 1
   floorY: 0
   drawGizmos: 1
-  speed: 0.35
+  speed: 0.82
   useUnscaledTime: 1
   bodySegments: 18
   tailSegments: 6
@@ -562,8 +562,8 @@ MonoBehaviour:
   flightSpeed: 2
   weave: 0.5
   weaveRate: 0.5
-  waveHeight: 0.249
-  waveRate: 0.7
+  waveHeight: 0.16
+  waveRate: 0.37
   flapRate: 2.24
   orbit: 1
   turnDirection: 1
@@ -1904,7 +1904,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21
+  label: 2026-08-13 12:26
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 69ed86d90cbbb9240b8b96f6dd4f303f, type: 2}
@@ -2116,7 +2116,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21
+  label: 2026-08-13 12:26
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 029abdbde0b08b247b81c9cfd32b11f4, type: 2}
@@ -2325,7 +2325,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21
+  label: 2026-08-13 12:26
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 8a4cdeaf26ad93b449b39d1094ca8f33, type: 2}
@@ -8009,7 +8009,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21:50
+  label: 2026-08-13 12:26:15
   timeLabelMode: 3
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 52d19a3c8dc47fc44897bf47717502fc, type: 2}
@@ -8670,7 +8670,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c32284f30cfa93418bf7a97570eb926, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  label: 2026-08-13 12:21
+  label: 2026-08-13 12:26
   timeLabelMode: 2
   spineProviderBehaviour: {fileID: 0}
   bodyMaterial: {fileID: 2100000, guid: 4c9e60a779d1f9e4cae286f2668fe5b5, type: 2}
